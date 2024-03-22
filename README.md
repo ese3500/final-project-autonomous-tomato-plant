@@ -1,21 +1,23 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/2TmiRqwI)
 # final-project-skeleton
 
-    * Team Name: 
-    * Team Members: 
-    * Github Repository URL: 
+    * Team Name: Autonomous Tomato Plant
+    * Team Members: Nami Lindquist, Gabriel Zhang
+    * Github Repository URL: https://github.com/ese3500/final-project-autonomous-tomato-plant
     * Github Pages Website URL: [for final submission]
     * Description of hardware: (embedded hardware, laptop, etc) 
 
 ## Final Project Proposal
 
 ### 1. Abstract
+Our product is a platform to put plants on. This platform has wheels and has features built into it so that it will automatically water the plant and moves towards or away from sunlight depending on the plant's needs! All of the final features are still in progress, but these are just a couple that we've decided to incorporate into the project.
+
+
 
 In a few sentences, describe your final project. This abstract will be used as the description in the evaluation survey forms.
 
 ### 2. Motivation
-
-What is the problem that you are trying to solve? Why is this project interesting? What is the intended purpose?
+It's a pain to take care of a tomato plant. You have to adjust where you put the plant throughout the day to make sure that it's being exposed to the proper amount of sunlight and monitor its water levels, among many other things. This project is interesting because it has many easily-understandable features and it's something that we would use. The intended purpose is to make taking care of tomato plants, and plants in general, easier for busy people like us.
 
 ### 3. Goals
 
