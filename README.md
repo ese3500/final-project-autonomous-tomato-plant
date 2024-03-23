@@ -12,7 +12,7 @@
 ### 1. Abstract
 Our product is a platform to put plants on. This platform has wheels and has features built into it so that it will automatically water the plant and moves towards or away from sunlight depending on the plant's needs! All of the final features are still in progress, but these are just a couple that we've decided to incorporate into the project.
 
-
+* also want to add a feature that makes the plant rotate so that the sun is hitting the leaves all around 
 
 In a few sentences, describe your final project. This abstract will be used as the description in the evaluation survey forms.
 
