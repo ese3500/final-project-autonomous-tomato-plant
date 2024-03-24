@@ -5,7 +5,7 @@
     * Team Members: Nami Lindquist, Gabriel Zhang
     * Github Repository URL: https://github.com/ese3500/final-project-autonomous-tomato-plant
     * Github Pages Website URL: [for final submission]
-    * Description of hardware: (embedded hardware, laptop, etc) 
+    * Description of hardware: macOS Monterey Version 12.5
 
 ## Final Project Proposal
 
