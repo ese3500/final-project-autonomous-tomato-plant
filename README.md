@@ -10,7 +10,7 @@
 ## Final Project Proposal
 
 ### 1. Abstract
-Our product is a product that makes taking care of plants easier. All of the final features are still in progress, but these are just a couple that we've decided to incorporate into the project.
+Our product makes taking care of plants easier. It includes a platform for the plant to rest on. The platform has wheels to give the plant mobility and has other features listed below. All of the final features are still in progress, but these are just a couple that we've decided to incorporate into the project.
 
 1) The platform will constantly rotate in-place so that the sun is hitting all sides of the plant. This is a feature that the user can turn on or off. 
 2) The platform will have wheels attached to the bottom of it and the movement of these wheels are dictated by a light sensor. When the light sensor senses too much light, the plant will roll away from the window and vice versa. 
@@ -61,7 +61,7 @@ We will first get the motors to work and then try to control them based on the l
 * Ultrasonic sensor for collision detection 
 
 ### 10. Evaluation
-Here are several metrics for success that we've come up with. We are 
+Here are several metrics for success that we've come up with.
 
 * Maintain plant in sunlight 100% of the time (if direct sunlight is available) OR stop in the position where light intensity is maximized
 * Travel without spilling / crashing
