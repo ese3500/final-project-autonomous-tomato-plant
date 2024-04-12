@@ -1,0 +1,29 @@
+#define F_CPU 16000000UL
+#define BAUD_RATE 9600
+
+#include <avr/interrupt.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <avr/io.h>
+#include <util/delay.h>
+
+#include "uart.h"
+
+void Initialize()
+{
+  // Pump output pin
+  	DDRB |= (1<<DDRB0);
+}
+
+int main(void)
+{
+
+  Initialize();
+
+  while(1)
+  {
+    PORTB |= (1<<PORTB0);
+		Delay_ms(100);
+		PORTB &= ~(1<<PORTB0);
+  }
+}
