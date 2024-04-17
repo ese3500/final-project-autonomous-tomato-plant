@@ -57,15 +57,20 @@ void Initialize()
 
 void Smiley() {
   LCD_drawString(35, 10, "Your plant is happy", 0xFFFF, 0xA165); 
-  LCD_drawCircle(ball_x_coord, ball_y_coord, 6, 0x0000); // Face
-  LCD_drawCircle(ball_x_coord, ball_y_coord, 6, 0x0000); // Eyes
-  LCD_drawCircle(ball_x_coord, ball_y_coord, 6, 0x0000); 
-  LCD_drawCircle(ball_x_coord, ball_y_coord, 6, 0x0000); // Mouth
+  LCD_drawCircle(0, 0, 60, FFFF00); // Face
+  LCD_drawCircle(50, 40, 6, 0x0000); // Eyes
+  LCD_drawCircle(110, 40, 6, 0x0000); 
+  LCD_drawCircle(60, 90, 30, 0x0000); // Mouth
+  LCD_drawBlock(50, 60, 110, 90, FFFF00);
 }
 
 void Frowny() {
   LCD_drawString(35, 10, "Your plant is thirsty!", 0xFFFF, 0xA165);
-  LCD_drawCircle(80, 64, 6, 0x0000); 
+  LCD_drawCircle(0, 0, 60, FFFF00); // Face
+  LCD_drawCircle(50, 40, 6, 0x0000); // Eyes
+  LCD_drawCircle(110, 40, 6, 0x0000); 
+  LCD_drawCircle(60, 90, 30, 0x0000); // Mouth
+  LCD_drawBlock(50, 90, 110, 120, FFFF00);
 }
 
 int main(void)
