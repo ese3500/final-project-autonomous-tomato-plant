@@ -19,14 +19,14 @@ void Initialize()
 {
 	cli(); // Disable global interrupts
 	
-  // top_right_LDR Red LED output pin 
-  DDRD |= (1<<DDRD5);
-  // top_left_LDR Yellow LED output pin
-  DDRD |= (1<<DDRD5);
-  // bottom_right_LDR Green LED output pin
-  DDRD |= (1<<DDRD5);
-  // bottom_left_LDR Blue LED output pin
-  DDRD |= (1<<DDRD5);
+	//// top_right_LDR Red LED output pin
+	//DDRD |= (1<<DDRD5);
+	//// top_left_LDR Yellow LED output pin
+	//DDRD |= (1<<DDRD5);
+	//// bottom_right_LDR Green LED output pin
+	//DDRD |= (1<<DDRD5);
+	//// bottom_left_LDR Blue LED output pin
+	//DDRD |= (1<<DDRD5);
 
 	// Moisture sensor input pin
 	DDRD &= ~(1<<DDRD0);
@@ -47,7 +47,7 @@ void Initialize()
 	ADCSRA |= (1 << ADPS1);
 	ADCSRA |= (1 << ADPS2);
 
-	// Select Channel ADC0 (pin C0)
+	// Select Channel ADC5 (pin C5 = top right, red LED)
 	ADMUX &= ~(1 << MUX0);
 	ADMUX &= ~(1 << MUX1);
 	ADMUX &= ~(1 << MUX2);
@@ -74,37 +74,37 @@ void Initialize()
 
 // top_right_LDR Red LED
 void top_right_LDR_ADC_set() {
-  // Select Channel ADC0 (pin C0)
+	// Select Channel ADC5 (pin C5 = top right)
 	ADMUX &= ~(1 << MUX0);
-	ADMUX &= ~(1 << MUX1);
+	ADMUX |= (1 << MUX1);
 	ADMUX &= ~(1 << MUX2);
-	ADMUX &= ~(1 << MUX3);
+	ADMUX |= (1 << MUX3);
 }
 
 // top_left_LDR Yellow LED
 void top_left_LDR_ADC_set() {
-  // Select Channel ADC0 (pin C0)
+	// Select Channel ADC5 (pin C4 = top left)
 	ADMUX &= ~(1 << MUX0);
-	ADMUX &= ~(1 << MUX1);
-	ADMUX &= ~(1 << MUX2);
-	ADMUX &= ~(1 << MUX3);
-}
-  
-// bottom_right_LDR Green LED
-void bottom_right_LDR_ADC_set() {
-  // Select Channel ADC0 (pin C0)
-	ADMUX &= ~(1 << MUX0);
-	ADMUX &= ~(1 << MUX1);
+	ADMUX |= (1 << MUX1);
 	ADMUX &= ~(1 << MUX2);
 	ADMUX &= ~(1 << MUX3);
 }
 
-// bottom_left_LDR Blue LED
-void bottom_left_LDR_ADC_set() {
-  // Select Channel ADC0 (pin C0)
+// bottom_right_LDR Green LED
+void bottom_right_LDR_ADC_set() {
+	// Select Channel ADC5 (pin C3 = bottom right)
 	ADMUX &= ~(1 << MUX0);
 	ADMUX &= ~(1 << MUX1);
-	ADMUX &= ~(1 << MUX2);
+	ADMUX |= (1 << MUX2);
+	ADMUX |= (1 << MUX3);
+}
+
+// bottom_left_LDR Blue LED
+void bottom_left_LDR_ADC_set() {
+	// Select Channel ADC5 (pin C2 = bottom left)
+	ADMUX &= ~(1 << MUX0);
+	ADMUX &= ~(1 << MUX1);
+	ADMUX |= (1 << MUX2);
 	ADMUX &= ~(1 << MUX3);
 }
 
@@ -117,7 +117,7 @@ int main(void)
 		
 		if (moisture_value > 530) { // thirsty
 			Frowny();
-		} else { // smiley
+			} else { // smiley
 			Smiley();
 		}
 	}
