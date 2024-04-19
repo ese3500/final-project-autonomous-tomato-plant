@@ -10,6 +10,9 @@
 // The moisture is measured by ADC
 int moisture_value = 0;
 
+// Have a boolean help with screen resetting
+int face = 0; // 0 means frowny, 1 means smiley
+
 void Initialize()
 {
 	cli(); // Disable global interrupts
@@ -67,7 +70,7 @@ void Initialize()
 
 
 void Smiley() {
-	LCD_drawString(5, 10, "Your plant is happy", 0x0000, 0xFFFF);
+	//LCD_drawString(5, 10, "Your plant is happy", 0x0000, 0xFFFF);
 	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
 	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
 	LCD_drawCircle(105, 55, 6, 0x0000);
@@ -76,7 +79,7 @@ void Smiley() {
 }
 
 void Frowny() {
-	LCD_drawString(30, 10, "Give me water!", 0x0000, 0xFFFF);
+	//LCD_drawString(30, 10, "Give me water!", 0x0000, 0xFFFF);
 	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
 	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
 	LCD_drawCircle(105, 55, 6, 0x0000);
@@ -87,12 +90,11 @@ void Frowny() {
 int main(void)
 {
 	Initialize();
-	LCD_setScreen(0xFFFF);
 	
 	while(1){
 		moisture_value= ADC;
 		
-		if (moisture_value < 300) { // thirsty
+		if (moisture_value > 530) { // thirsty
 			Frowny();
 		} else { // smiley
 			Smiley();
