@@ -95,9 +95,19 @@ int main(void)
 		moisture_value= ADC;
 		
 		if (moisture_value > 530) { // thirsty
-			Frowny();
+			if (face == 0) {
+				// do nothing 
+			} else {
+				face = 0;
+				Frowny();	
+			}
 		} else { // smiley
-			Smiley();
+			if (face == 1) {
+				// do nothing 
+			} else {
+				face = 1;
+				Smiley();	
+			}
 		}
 	}
 }
