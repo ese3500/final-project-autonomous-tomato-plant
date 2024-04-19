@@ -70,7 +70,7 @@ void Initialize()
 
 
 void Smiley() {
-	//LCD_drawString(5, 10, "Your plant is happy", 0x0000, 0xFFFF);
+	LCD_drawString(5, 10, "I'm happy and growing some basil", 0x0000, 0xFFFF);
 	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
 	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
 	LCD_drawCircle(105, 55, 6, 0x0000);
@@ -79,7 +79,16 @@ void Smiley() {
 }
 
 void Frowny() {
-	//LCD_drawString(30, 10, "Give me water!", 0x0000, 0xFFFF);
+	LCD_drawString(30, 10, "Give me water!", 0x0000, 0xFFFF);
+	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
+	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
+	LCD_drawCircle(105, 55, 6, 0x0000);
+	LCD_drawCircle(80, 95, 20, 0xF00F); // Mouth
+	LCD_drawBlock(60, 95, 100, 115, 0xFF0F);
+}
+
+void Drowning() {
+	LCD_drawString(5, 10, "I'm drowning! Help!!", 0x0000, 0xFFFF);
 	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
 	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
 	LCD_drawCircle(105, 55, 6, 0x0000);
@@ -93,21 +102,25 @@ int main(void)
 	
 	while(1){
 		moisture_value= ADC;
+
+		// We want the ADC value to be between 530-570. Anything above is too dry, and anything below is too wet.
 		
-		if (moisture_value > 530) { // thirsty
+		if (moisture_value > 570) { // thirsty
 			if (face == 0) {
 				// do nothing 
 			} else {
 				face = 0;
 				Frowny();	
 			}
-		} else { // smiley
+		} else if (moisture_value > 530) { // smiley
 			if (face == 1) {
 				// do nothing 
 			} else {
 				face = 1;
 				Smiley();	
 			}
+		} else {
+			Drowning();	
 		}
 	}
 }
