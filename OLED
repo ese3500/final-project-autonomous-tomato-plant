@@ -7,11 +7,14 @@
 #include <stdlib.h>
 #include <avr/interrupt.h>
 
-// The moisture is measured by ADC
-int moisture_value = 0;
+// Enumeration for face types
+typedef enum {
+    FROWNY = 0,
+    SMILEY = 1
+} FaceType;
 
-// Have a boolean help with screen resetting
-int face = 0; // 0 means frowny, 1 means smiley
+FaceType face = FROWNY;  // Set the initial face to frowny
+int moisture_value = 0; // The moisture is measured by ADC
 
 void Initialize()
 {
@@ -103,20 +106,19 @@ int main(void)
 	while(1){
 		moisture_value= ADC;
 
-		// We want the ADC value to be between 530-570. Anything above is too dry, and anything below is too wet.
-		
-		if (moisture_value > 570) { // thirsty
-			if (face == 0) {
+		// We want the moisture value to be between 530-570. Anything above is too dry, and anything below is too wet.
+		if (moisture_value > 570) { 
+			if (face == FROWNY) {
 				// do nothing 
 			} else {
-				face = 0;
+				face = FROWNY;
 				Frowny();	
 			}
-		} else if (moisture_value > 530) { // smiley
-			if (face == 1) {
+		} else if (moisture_value > 530) { 
+			if (face == SMILEY) {
 				// do nothing 
 			} else {
-				face = 1;
+				face = SMILEY;
 				Smiley();	
 			}
 		} else {
