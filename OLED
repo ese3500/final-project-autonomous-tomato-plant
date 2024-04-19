@@ -7,12 +7,22 @@
 #include <stdlib.h>
 #include <avr/interrupt.h>
 
+// The moisture is measured by ADC
+int moisture_value = 0;
+
 void Initialize()
 {
 	cli(); // Disable global interrupts
 	
-	// Moisture sensor input pins C0
-	DDRC &= ~(1<<DDRC0);
+	//// Buzzer output pin
+	//DDRD |= (1<<DDRD3);
+	//// Red LED output pin
+	//DDRD |= (1<<DDRD4);
+	//// Blue LED output pin
+	//DDRD |= (1<<DDRD5);
+	
+	// Moisture sensor input pin
+	DDRD &= ~(1<<DDRD0);
 
 	lcd_init();
 	
@@ -55,31 +65,37 @@ void Initialize()
 	sei(); // Enable global interrupts
 }
 
+
 void Smiley() {
-  LCD_drawString(35, 10, "Your plant is happy", 0xFFFF, 0xA165); 
-  LCD_drawCircle(0, 0, 60, FFFF00); // Face
-  LCD_drawCircle(50, 40, 6, 0x0000); // Eyes
-  LCD_drawCircle(110, 40, 6, 0x0000); 
-  LCD_drawCircle(60, 90, 30, 0x0000); // Mouth
-  LCD_drawBlock(50, 60, 110, 90, FFFF00);
+	LCD_drawString(5, 10, "Your plant is happy", 0x0000, 0xFFFF);
+	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
+	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
+	LCD_drawCircle(105, 55, 6, 0x0000);
+	LCD_drawCircle(80, 90, 20, 0xF00F); // Mouth
+	LCD_drawBlock(60, 70, 100, 90, 0xFF0F);
 }
 
 void Frowny() {
-  LCD_drawString(35, 10, "Your plant is thirsty!", 0xFFFF, 0xA165);
-  LCD_drawCircle(0, 0, 60, FFFF00); // Face
-  LCD_drawCircle(50, 40, 6, 0x0000); // Eyes
-  LCD_drawCircle(110, 40, 6, 0x0000); 
-  LCD_drawCircle(60, 90, 30, 0x0000); // Mouth
-  LCD_drawBlock(50, 90, 110, 120, FFFF00);
+	LCD_drawString(30, 10, "Give me water!", 0x0000, 0xFFFF);
+	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
+	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
+	LCD_drawCircle(105, 55, 6, 0x0000);
+	LCD_drawCircle(80, 95, 20, 0xF00F); // Mouth
+	LCD_drawBlock(60, 95, 100, 115, 0xFF0F);
 }
 
 int main(void)
 {
-  while(1){
-    if (ADC < 300) { // thirsty
-      Frowny();
-    } else { // smiley
-      Smiley();
-    }
-  }
+	Initialize();
+	LCD_setScreen(0xFFFF);
+	
+	while(1){
+		moisture_value= ADC;
+		
+		if (moisture_value < 300) { // thirsty
+			Frowny();
+		} else { // smiley
+			Smiley();
+		}
+	}
 }
