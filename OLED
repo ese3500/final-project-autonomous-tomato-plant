@@ -140,6 +140,7 @@ void Update_Light_Metric() {
 int main(void)
 {
 	Initialize();
+	LCD_setScreen(0xFFFF); 
 	
 	while(1){
 		Update_Light_Metric();
