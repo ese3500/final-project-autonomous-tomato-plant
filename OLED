@@ -10,7 +10,8 @@
 // Enumeration for face types
 typedef enum {
 	FROWNY = 0,
-	SMILEY = 1
+	SMILEY = 1,
+	DROWNING = 2
 } FaceType;
 
 FaceType face = FROWNY;  // Set the initial face to frowny
@@ -163,7 +164,12 @@ int main(void)
 				Smiley();
 			}
 		} else {
-			Drowning();
+			if (face == DROWNING) {
+				// do nothing
+			} else {
+				face = DROWNING;
+				Drowning();
+			}
 		}
 	}
 }
