@@ -91,7 +91,7 @@ void Initialize()
 
 
 void Smiley() {
-	LCD_drawString(5, 10, "I'm happy and growing some basil", 0x0000, 0xFFFF);
+	LCD_drawString(5, 0, "I'm happy and growing some basil", 0x0000, 0xFFFF);
 	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
 	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
 	LCD_drawCircle(105, 55, 6, 0x0000);
@@ -100,7 +100,7 @@ void Smiley() {
 }
 
 void Frowny() {
-	LCD_drawString(30, 10, "Give me water!", 0x0000, 0xFFFF);
+	LCD_drawString(30, 0, "Give me water!", 0x0000, 0xFFFF);
 	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
 	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
 	LCD_drawCircle(105, 55, 6, 0x0000);
@@ -109,7 +109,7 @@ void Frowny() {
 }
 
 void Drowning() {
-	LCD_drawString(5, 10, "I'm drowning! Help!!", 0x0000, 0xFFFF);
+	LCD_drawString(5, 0, "I'm drowning! Help!!", 0x0000, 0xFFFF);
 	LCD_drawCircle(80, 73, 50, 0x00FF); // Face
 	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
 	LCD_drawCircle(105, 55, 6, 0x0000);
@@ -120,9 +120,9 @@ void Drowning() {
 void Update_Light_Metric() {
 	if (light_metric_display == DIM) {
 		LCD_drawString(5, 10, "Light Intensity: Dim", 0x0000, 0xFFFF);
-		} else if (light_metric_display == NORMAL) {
+	} else if (light_metric_display == NORMAL) {
 		LCD_drawString(5, 10, "Light Intensity: Normal", 0x0000, 0xFFFF);
-		} else {
+	} else {
 		LCD_drawString(5, 10, "Light Intensity: High", 0x0000, 0xFFFF);
 	}
 }
@@ -130,9 +130,9 @@ void Update_Light_Metric() {
 //void Update_Moisture_Metric() {
 	//if (moisture_metric_display == DRY) {
 		//LCD_drawString(5, 10, "Moisture Level: Dry", 0x0000, 0xFFFF);
-		//} else if (moisture_metric_display == NORMAL) {
+	//} else if (moisture_metric_display == NORMAL) {
 		//LCD_drawString(5, 10, "Moisture Level: Normal", 0x0000, 0xFFFF);
-		//} else {
+	//} else {
 		//LCD_drawString(5, 10, "Moisture Level: Soggy", 0x0000, 0xFFFF);
 	//}
 //}
@@ -150,18 +150,18 @@ int main(void)
 		if (moisture_value_ADC > 570) {
 			if (face == FROWNY) {
 				// do nothing
-				} else {
+			} else {
 				face = FROWNY;
 				Frowny();
 			}
-			} else if (moisture_value_ADC > 530) {
+		} else if (moisture_value_ADC > 530) {
 			if (face == SMILEY) {
 				// do nothing
-				} else {
+			} else {
 				face = SMILEY;
 				Smiley();
 			}
-			} else {
+		} else {
 			Drowning();
 		}
 	}
