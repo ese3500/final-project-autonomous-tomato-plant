@@ -14,7 +14,25 @@ typedef enum {
 } FaceType;
 
 FaceType face = FROWNY;  // Set the initial face to frowny
-int moisture_value = 0; // The moisture is measured by ADC
+
+int moisture_value_ADC = 0; // The moisture is measured by ADC
+
+// Metrics to display on OLED (dim, normal, bright)
+typedef enum {
+	DIM = 0,
+	NORMAL = 1
+	BRIGHT = 2,
+} LightType;
+
+LightType light_metric_display = NORMAL;  // Set the initial light metric to normal
+
+typedef enum {
+	DRY = 0,
+	NORMAL = 1
+	SOGGY = 2,
+} MoistureType;
+
+LightType moisture_metric_display = NORMAL;  // Set the initial moisture metric to normal
 
 void Initialize()
 {
@@ -92,11 +110,31 @@ void Frowny() {
 
 void Drowning() {
 	LCD_drawString(5, 10, "I'm drowning! Help!!", 0x0000, 0xFFFF);
-	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
+	LCD_drawCircle(80, 73, 50, 0x00FF); // Face
 	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
 	LCD_drawCircle(105, 55, 6, 0x0000);
 	LCD_drawCircle(80, 95, 20, 0xF00F); // Mouth
-	LCD_drawBlock(60, 95, 100, 115, 0xFF0F);
+	LCD_drawBlock(60, 95, 100, 115, 0x00FF);
+}
+
+void Update_Light_Metric() {
+	if (light_metric_display == DIM) {
+		LCD_drawString(5, 10, "Light Intensity: Dim", 0x0000, 0xFFFF);
+	} else if (light_metric_display == NORMAL) {
+		LCD_drawString(5, 10, "Light Intensity: Normal", 0x0000, 0xFFFF);
+	} else {
+		LCD_drawString(5, 10, "Light Intensity: High", 0x0000, 0xFFFF);
+	}
+}
+
+void Update_Moisture_Metric() {
+	if (moisture_metric_display == DRY) {
+		LCD_drawString(5, 10, "Moisture Level: Dry", 0x0000, 0xFFFF);
+	} else if (moisture_metric_display == NORMAL) {
+		LCD_drawString(5, 10, "Moisture Level: Normal", 0x0000, 0xFFFF);
+	} else {
+		LCD_drawString(5, 10, "Moisture Level: Soggy", 0x0000, 0xFFFF);
+	}
 }
 
 int main(void)
@@ -104,17 +142,19 @@ int main(void)
 	Initialize();
 	
 	while(1){
-		moisture_value= ADC;
+		Update_Light_Metric();
+
+		moisture_value_ADC = ADC;
 
 		// We want the moisture value to be between 530-570. Anything above is too dry, and anything below is too wet.
-		if (moisture_value > 570) { 
+		if (moisture_value_ADC > 570) { 
 			if (face == FROWNY) {
 				// do nothing 
 			} else {
 				face = FROWNY;
 				Frowny();	
 			}
-		} else if (moisture_value > 530) { 
+		} else if (moisture_value_ADC > 530) { 
 			if (face == SMILEY) {
 				// do nothing 
 			} else {
@@ -122,7 +162,7 @@ int main(void)
 				Smiley();	
 			}
 		} else {
-			Drowning();	
+			Drowning();
 		}
 	}
 }
