@@ -109,7 +109,7 @@ void Frowny() {
 }
 
 void Drowning() {
-	LCD_drawString(5, 1, "I'm drowning! Help!!", 0x0000, 0xFFFF);
+	LCD_drawString(10, 1, "I'm drowning! Help!!", 0x0000, 0xFFFF);
 	LCD_drawCircle(80, 73, 50, 0x00FF); // Face
 	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
 	LCD_drawCircle(105, 55, 6, 0x0000);
@@ -119,9 +119,9 @@ void Drowning() {
 
 void Update_Light_Metric() {
 	if (light_metric_display == DIM) {
-		LCD_drawString(10, 10, "Light: Dim", 0x0000, 0xFFFF);
+		LCD_drawString(5, 10, "Light: Dim", 0x0000, 0xFFFF);
 	} else if (light_metric_display == NORMAL) {
-		LCD_drawString(10, 10, "Light: Normal", 0x0000, 0xFFFF);
+		LCD_drawString(5, 10, "Light: Normal", 0x0000, 0xFFFF);
 	} else {
 		LCD_drawString(10, 10, "Light: High", 0x0000, 0xFFFF);
 	}
