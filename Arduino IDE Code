@@ -1,0 +1,54 @@
+// You should get Auth Token in the Blynk App.
+// Go to the Project Settings (nut icon).
+char auth[] = BLYNK_AUTH_TOKEN;
+
+void setup()
+{
+  // Set output pins 
+  pinMode(13, OUTPUT); // Ahead
+  pinMode(12, OUTPUT); // Backwards
+  pinMode(27, OUTPUT); // Left
+  pinMode(33, OUTPUT); // Right
+  
+  // Debug console
+  Serial.begin(9600);
+  Blynk.begin(auth, MY_SSID, MY_PASSWORD);
+}
+
+// Virtual Pin V0 controls moves the car straight ahead
+BLYNK_WRITE(V0) // Executes when the value of virtual pin 0 changes
+{
+  if(param.asInt() == 1) {
+    // execute this code if the switch widget is now ON
+    digitalWrite(13,HIGH);  // Set digital pin 2 HIGH
+  } else {
+    // execute this code if the switch widget is now OFF
+    digitalWrite(13,LOW);  // Set digital pin 2 LOW    
+  }
+}
+
+// Virtual Pin V1 controls moves the car straight backwards
+BLYNK_WRITE (V1)
+{
+  if(param.asInt() == 1) { digitalWrite(12,HIGH); }
+  else { digitalWrite(12,LOW); }
+}
+
+// Virtual Pin V2 controls moves the car straight to the left
+BLYNK_WRITE (V2)
+{
+  if(param.asInt() == 1) { digitalWrite(27,HIGH); }
+  else { digitalWrite(27,LOW); }
+}
+
+// Virtual Pin V3 controls moves the car straight to the right
+BLYNK_WRITE (V3)
+{
+  if(param.asInt() == 1) { digitalWrite(33,HIGH); }
+  else { digitalWrite(33,LOW); }
+}
+
+void loop()
+{
+  Blynk.run();
+}
