@@ -119,11 +119,11 @@ void Drowning() {
 
 void Update_Light_Metric() {
 	if (light_metric_display == DIM) {
-		LCD_drawString(1, 10, "Light Intensity: Dim", 0x0000, 0xFFFF);
+		LCD_drawString(10, 10, "Light: Dim", 0x0000, 0xFFFF);
 	} else if (light_metric_display == NORMAL) {
-		LCD_drawString(1, 10, "Light Intensity: Normal", 0x0000, 0xFFFF);
+		LCD_drawString(10, 10, "Light: Normal", 0x0000, 0xFFFF);
 	} else {
-		LCD_drawString(1, 10, "Light Intensity: High", 0x0000, 0xFFFF);
+		LCD_drawString(10, 10, "Light: High", 0x0000, 0xFFFF);
 	}
 }
 
