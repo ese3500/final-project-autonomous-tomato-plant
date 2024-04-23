@@ -184,7 +184,7 @@ void ReadADCForLDR(void) {
 	_delay_ms(1000);	
 }
 
-uint16_t MoveCar() {
+void MoveCar() {
 	adc_max = max(adc0, adc1, adc2, adc3);
 	adc_min = min(adc0, adc1, adc2, adc3);
 
