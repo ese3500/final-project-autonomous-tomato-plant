@@ -14,10 +14,10 @@
 #include "motor_control.h"
 
 // Initialize variables for the ADC readings of the LDRs
-uint16_t adc0; // Bottom left
-uint16_t adc1; // Bottom right
-uint16_t adc2; // Top right
-uint16_t adc3; // Top left
+uint16_t adc0; // Bottom left LDR
+uint16_t adc1; // Bottom right LDR
+uint16_t adc2; // Top right LDR
+uint16_t adc3; // Top left LDR
 
 // Enumeration for face types
 typedef enum {
