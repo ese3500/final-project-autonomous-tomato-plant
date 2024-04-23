@@ -12,7 +12,7 @@
 void Initialize()
 {
 	// Pump output pin
-	DDRB |= (1<<DDRB0);
+	DDRD |= (1<<DDRD0);
 }
 
 int main(void)
@@ -22,9 +22,9 @@ int main(void)
 
 	while(1)
 	{
-		PORTB |= (1<<PORTB0);
+		PORTD |= (1<<PORTD0);
 		_delay_ms(100);
-		PORTB &= ~(1<<PORTB0);
+		PORTD &= ~(1<<PORTD0);
 		_delay_ms(1000);
 	}
 }
