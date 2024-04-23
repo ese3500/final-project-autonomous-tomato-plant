@@ -122,20 +122,26 @@ void Initialize()
 	sei(); // Enable global interrupts
 }
 
-ISR(PCINT12_vect) { 
+void Collision() {
 	Stop();
+	LCD_setScreen(0xFF0F); 
+	LCD_drawString(1, 1, "Collision! Please move me.", 0x0000, 0xFF0F);
+}
+
+ISR(PCINT12_vect) { 
+	Collision();
 }
 
 ISR(PCINT16_vect) { 
-	Stop();
+	Collision();
 }
 
 ISR(PCINT17_vect) { 
-	Stop();
+	Collision();
 }
 
 ISR(PCINT18_vect) { 
-	Stop();
+	Collision();
 }
 
 void Check_Bumpers() {
