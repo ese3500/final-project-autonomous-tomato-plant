@@ -284,6 +284,7 @@ int main(void)
 	while(1){
     		ReadADCForLDR();
 		Update_Light_Metric();
+		MoveCar();
 
 		moisture_value_ADC = ADC;
 
