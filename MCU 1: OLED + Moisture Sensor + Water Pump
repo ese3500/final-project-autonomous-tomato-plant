@@ -6,6 +6,7 @@
 #include "LCD_GFX.h"
 #include <stdlib.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 
 // Enumeration for face types
 typedef enum {
@@ -16,38 +17,16 @@ typedef enum {
 
 FaceType face = FROWNY;  // Set the initial face to frowny
 
-int moisture_value_ADC = 0; // The moisture is measured by ADC
-
-// Metrics to display on OLED (dim, normal, bright)
-typedef enum {
-	DIM = 0,
-	NORMAL = 1,
-	BRIGHT = 2,
-} LightType;
-
-LightType light_metric_display = NORMAL;  // Set the initial light metric to normal
-
-//typedef enum {
-	//DRY = 0,
-	//NORMAL = 1
-	//SOGGY = 2,
-//} MoistureType;
-//
-//LightType moisture_metric_display = NORMAL;  // Set the initial moisture metric to normal
+int moisture_value_ADC; // The moisture is measured by ADC
 
 void Initialize()
 {
 	cli(); // Disable global interrupts
 	
-	//// Buzzer output pin
-	//DDRD |= (1<<DDRD3);
-	//// Red LED output pin
-	//DDRD |= (1<<DDRD4);
-	//// Blue LED output pin
-	//DDRD |= (1<<DDRD5);
-	
-	// Moisture sensor input pin
-	DDRD &= ~(1<<DDRD0);
+	// Water pump output pin
+	DDRD |= (1<<DDRD0);
+	//// Moisture sensor input pin
+	//DDRC &= ~(1<<DDRC0);
 
 	lcd_init();
 	
@@ -65,7 +44,7 @@ void Initialize()
 	ADCSRA |= (1 << ADPS1);
 	ADCSRA |= (1 << ADPS2);
 
-	// Select Channel ADC0 (pin C0)
+	// Select Channel ADC0 (pin C0) for moisture sensor 
 	ADMUX &= ~(1 << MUX0);
 	ADMUX &= ~(1 << MUX1);
 	ADMUX &= ~(1 << MUX2);
@@ -88,6 +67,15 @@ void Initialize()
 	ADCSRA |= (1 << ADSC);
 	
 	sei(); // Enable global interrupts
+}
+
+void Water_Plant() {
+	//if (moisture_value_ADC > 570) {
+		PORTD |= (1<<PORTD0);
+		_delay_ms(100);
+		PORTD &= ~(1<<PORTD0);
+		_delay_ms(1000);	
+	//}
 }
 
 
@@ -118,34 +106,12 @@ void Drowning() {
 	LCD_drawBlock(60, 95, 100, 115, 0x00FF);
 }
 
-void Update_Light_Metric() {
-	if (light_metric_display == DIM) {
-		LCD_drawString(1, 10, "Light: Dim", 0x0000, 0xFFFF);
-	} else if (light_metric_display == NORMAL) {
-		LCD_drawString(1, 10, "Light: Normal", 0x0000, 0xFFFF);
-	} else {
-		LCD_drawString(1, 10, "Light: High", 0x0000, 0xFFFF);
-	}
-}
-
-//void Update_Moisture_Metric() {
-	//if (moisture_metric_display == DRY) {
-		//LCD_drawString(1, 10, "Moisture Level: Dry", 0x0000, 0xFFFF);
-	//} else if (moisture_metric_display == NORMAL) {
-		//LCD_drawString(1, 10, "Moisture Level: Normal", 0x0000, 0xFFFF);
-	//} else {
-		//LCD_drawString(1, 10, "Moisture Level: Soggy", 0x0000, 0xFFFF);
-	//}
-//}
-
 int main(void)
 {
 	Initialize();
-	LCD_setScreen(0xFFFF); 
+	LCD_setScreen(0xFFFF);
 	
 	while(1){
-		Update_Light_Metric();
-
 		moisture_value_ADC = ADC;
 
 		// We want the moisture value to be between 530-570. Anything above is too dry, and anything below is too wet.
@@ -156,6 +122,7 @@ int main(void)
 				face = FROWNY;
 				Frowny();
 			}
+			Water_Plant();
 		} else if (moisture_value_ADC > 530) {
 			if (face == SMILEY) {
 				// do nothing
