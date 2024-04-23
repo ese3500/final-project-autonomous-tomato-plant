@@ -59,8 +59,8 @@ void Initialize()
 	DDRE |= (1<<DDRE1); // Virtual pin 0 maps to MCU PE1 and calls Reverse()
 	DDRE |= (1<<DDRE2); // Virtual pin 0 maps to MCU PE2 and calls Left()
 	DDRE |= (1<<DDRE3); // Virtual pin 0 maps to MCU PE3 and calls Right()
-	DDRE |= (1<<DDRB0); // Virtual pin 0 maps to MCU PB0 and calls Drift_Left()
-	DDRE |= (1<<DDRB1); // Virtual pin 0 maps to MCU PB1 and calls Drift_Right()
+	DDRD |= (1<<DDRD0); // Virtual pin 0 maps to MCU PD0 and calls Drift_Left()
+	DDRD |= (1<<DDRD1); // Virtual pin 0 maps to MCU PD1 and calls Drift_Right()
 	
 	// Moisture sensor input pin
 	DDRD &= ~(1<<DDRD0);
