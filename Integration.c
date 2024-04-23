@@ -102,13 +102,13 @@ void Initialize()
 	sei(); // Enable global interrupts
 }
 
-void init_motor_pins(void) {
+void Init_motor_pins(void) {
 	// Set all motor control pins to output
 	DDRD |= (1 << PD4) | (1 << PD5) | (1 << PD6) | (1 << PD7);
 	DDRB |= (1 << PB0) | (1 << PB1) | (1 << PB2) | (1 << PB3);
 }
 
-void forward(void) {
+void Forward(void) {
 	PORTD |= (1 << PD4) | (1 << PD6);
 	PORTD &= ~((1 << PD5) | (1 << PD7));
 
@@ -116,7 +116,7 @@ void forward(void) {
 	PORTB &= ~((1 << PB1) | (1 << PB3));
 }
 
-void reverse(void) {
+void Reverse(void) {
 	PORTD |= (1 << PD5) | (1 << PD7);
 	PORTD &= ~((1 << PD4) | (1 << PD6));
 
@@ -124,12 +124,12 @@ void reverse(void) {
 	PORTB &= ~((1 << PB0) | (1 << PB2));
 }
 
-void left(void) {
+void Left(void) {
 	PORTB |= (1 << PB0) | (1 << PB2);
 	PORTB &= ~((1 << PB1) | (1 << PB3));
 }
 
-void right(void) {
+void Right(void) {
 	PORTD |= (1 << PD4) | (1 << PD6);
 	PORTD &= ~((1 << PD5) | (1 << PD7));
 }
@@ -225,14 +225,14 @@ int main(void)
 	LCD_setScreen(0xFFFF); 
 
   ADC_init();
-	init_motor_pins();
+	Init_motor_pins();
 		
 	// UART_init(BAUD_PRESCALER);
 	// sprintf(msg, "Initialized!\r\n");
 	// UART_putstring(msg);
 
 	while(1){
-    ReadADCForLDR();
+    		ReadADCForLDR();
 		Update_Light_Metric();
 
 		moisture_value_ADC = ADC;
