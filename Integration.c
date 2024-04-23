@@ -53,13 +53,14 @@ LightType light_metric_display = NORMAL;  // Set the initial light metric to nor
 void Initialize()
 {
 	cli(); // Disable global interrupts
-	
-	//// Buzzer output pin
-	//DDRD |= (1<<DDRD3);
-	//// Red LED output pin
-	//DDRD |= (1<<DDRD4);
-	//// Blue LED output pin
-	//DDRD |= (1<<DDRD5);
+
+	// Initialize input pins for ESP motor driving functionality
+	DDRE |= (1<<DDRE0); // Virtual pin 0 maps to MCU PE0 and calls Forward()
+	DDRE |= (1<<DDRE1); // Virtual pin 0 maps to MCU PE1 and calls Reverse()
+	DDRE |= (1<<DDRE2); // Virtual pin 0 maps to MCU PE2 and calls Left()
+	DDRE |= (1<<DDRE3); // Virtual pin 0 maps to MCU PE3 and calls Right()
+	DDRE |= (1<<DDRB0); // Virtual pin 0 maps to MCU PB0 and calls Drift_Left()
+	DDRE |= (1<<DDRB1); // Virtual pin 0 maps to MCU PB1 and calls Drift_Right()
 	
 	// Moisture sensor input pin
 	DDRD &= ~(1<<DDRD0);
@@ -103,6 +104,24 @@ void Initialize()
 	ADCSRA |= (1 << ADSC);
 	
 	sei(); // Enable global interrupts
+}
+
+void Wifi_Manual_Motor_Control() {
+	if (PINE & (1<<PINE0)) { // If PE0 is high, move the car forward
+		Forward();
+	} else if (PINE & (1<<PINE1)) { // If PE1 is high, move the car reverse
+		Reverse();
+	} else if (PINE & (1<<PINE2)) { // If PE2 is high, move the car left
+		Left();
+	} else if (PINE & (1<<PINE3)) { // If PE3 is high, move the car right
+		Right();
+	} else if (PINB & (1<<PINB0)) { // If PB0 is high, drift the car left
+		Drift_Left();
+	} else if (PINB & (1<<PINB1)) { // If PB1 is high, drift the car right
+		Drift_Right();
+	} else {
+		Stop();
+	}
 }
 
 void Init_motor_pins(void) {
@@ -285,6 +304,7 @@ int main(void)
     		ReadADCForLDR();
 		Update_Light_Metric();
 		MoveCar();
+		Wifi_Manual_Motor_Control();
 
 		moisture_value_ADC = ADC;
 
