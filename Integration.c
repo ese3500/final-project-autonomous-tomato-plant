@@ -63,10 +63,20 @@ void Initialize()
 	DDRD &= ~(1<<DDRD1); // Virtual pin 0 maps to MCU PD1 and calls Drift_Right()
 
 	// Initialize input pins for collision bumpers 
-	DDRD |= (1<<DDRD2); // Front of the car
-	DDRD |= (1<<DDRD3); // Bottom of the car
-	DDRB |= (1<<DDRB4); // Left of the car
-	DDRB |= (1<<DDRB5); // Right of the car
+	DDRD &= ~(1<<DDRD0); // Front of the car (PCINT16)
+	DDRD &= ~(1<<DDRD1); // Bottom of the car (PCINT17)
+	DDRD &= ~(1<<DDRD2); // Left of the car (PCINT18)
+	DDRC &= ~(1<<DDRC4); // Right of the car (PCINT12)
+
+	// Enable pin change interrupt for PCINT[14:8] and PCINT[23:16]
+	PCICR |= (1<<PCIE1);
+	PCICR |= (1<<PCIE2);
+	
+	// Enable pin change interrupts for collision bumper input pins
+	PCMSK1 |= (1<<PCINT12);
+	PCMSK2 |= (1<<PCINT16);
+	PCMSK2 |= (1<<PCINT17);
+	PCMSK2 |= (1<<PCINT18);
 	
 	// Moisture sensor input pin
 	DDRD &= ~(1<<DDRD0);
@@ -110,6 +120,22 @@ void Initialize()
 	ADCSRA |= (1 << ADSC);
 	
 	sei(); // Enable global interrupts
+}
+
+ISR(PCINT12_vect) { 
+	Stop();
+}
+
+ISR(PCINT16_vect) { 
+	Stop();
+}
+
+ISR(PCINT17_vect) { 
+	Stop();
+}
+
+ISR(PCINT18_vect) { 
+	Stop();
 }
 
 void Check_Bumpers() {
