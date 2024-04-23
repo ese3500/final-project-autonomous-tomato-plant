@@ -19,6 +19,8 @@ uint16_t adc1; // Bottom right LDR
 uint16_t adc2; // Top right LDR
 uint16_t adc3; // Top left LDR
 
+uint16_t adc_max;// LDR value with max ADC reading
+
 // Enumeration for face types
 typedef enum {
 	FROWNY = 0,
@@ -134,6 +136,15 @@ void Right(void) {
 	PORTD &= ~((1 << PD5) | (1 << PD7));
 }
 
+void Stop(void) {
+	PORTD &= ~((1 << PD4) | (1 << PD6));
+	PORTD &= ~((1 << PD5) | (1 << PD7));
+
+	PORTB &= ~((1 << PB0) | (1 << PB2));
+	PORTB &= ~((1 << PB1) | (1 << PB3));
+}
+
+
 void ADC_init() {
 	ADMUX = (1 << REFS0);  // Select AVCC as the reference
 
@@ -170,6 +181,44 @@ void ReadADCForLDR(void) {
 	UART_putstring(msg);
 		
 	_delay_ms(1000);	
+}
+
+uint16_t DetermineMaxLDR() {
+	adc_max = max(adc0, adc1, adc2, adc3);
+	adc_min = min(adc0, adc1, adc2, adc3);
+
+	if (abs((adc_max - adc_min) <= 75)) {
+		// Falls in the deadzone range: if the ADC readings of the LDRs are all around the same range, don't move the car	
+		Stop();
+	} else if (adc_max == 0) { // Bottom left LDR
+		Reverse();
+		Left();
+		Reverse();
+		Left();
+		Reverse();
+		Left();
+	} else if (adc_max == 1) { // Bottom right LDR
+		Reverse();
+		Right();
+		Reverse();
+		Right();
+		Reverse();
+		Right();
+	} else if (adc_max == 2) { // Top right LDR
+		Forward();
+		Right();
+		Forward();
+		Right();
+		Forward();
+		Right();
+	} else if (adc_max == 3) { // Top left LDR
+		Forward();
+		Left();
+		Forward();
+		Left();
+		Forward();
+		Left();
+	}
 }
 
 void Smiley() {
