@@ -7,6 +7,16 @@
 #include <stdlib.h>
 #include <avr/interrupt.h>
 
+#include <stdlib.h>
+#include <math.h>
+#include <stdio.h>
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+#include "uart.h"
+#include "ldr.h"
+#include "motor_control.h"
+
 // Initialize variables for the ADC readings of the LDRs
 uint16_t adc0; // Bottom left
 uint16_t adc1; // Bottom right
