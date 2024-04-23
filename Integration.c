@@ -55,12 +55,18 @@ void Initialize()
 	cli(); // Disable global interrupts
 
 	// Initialize input pins for ESP motor driving functionality
-	DDRE |= (1<<DDRE0); // Virtual pin 0 maps to MCU PE0 and calls Forward()
-	DDRE |= (1<<DDRE1); // Virtual pin 0 maps to MCU PE1 and calls Reverse()
-	DDRE |= (1<<DDRE2); // Virtual pin 0 maps to MCU PE2 and calls Left()
-	DDRE |= (1<<DDRE3); // Virtual pin 0 maps to MCU PE3 and calls Right()
-	DDRD |= (1<<DDRD0); // Virtual pin 0 maps to MCU PD0 and calls Drift_Left()
-	DDRD |= (1<<DDRD1); // Virtual pin 0 maps to MCU PD1 and calls Drift_Right()
+	DDRE &= ~(1<<DDRE0); // Virtual pin 0 maps to MCU PE0 and calls Forward()
+	DDRE &= ~(1<<DDRE1); // Virtual pin 0 maps to MCU PE1 and calls Reverse()
+	DDRE &= ~(1<<DDRE2); // Virtual pin 0 maps to MCU PE2 and calls Left()
+	DDRE &= ~(1<<DDRE3); // Virtual pin 0 maps to MCU PE3 and calls Right()
+	DDRD &= ~(1<<DDRD0); // Virtual pin 0 maps to MCU PD0 and calls Drift_Left()
+	DDRD &= ~(1<<DDRD1); // Virtual pin 0 maps to MCU PD1 and calls Drift_Right()
+
+	// Initialize input pins for collision bumpers 
+	DDRD |= (1<<DDRD2); // Front of the car
+	DDRD |= (1<<DDRD3); // Bottom of the car
+	DDRB |= (1<<DDRB4); // Left of the car
+	DDRB |= (1<<DDRB5); // Right of the car
 	
 	// Moisture sensor input pin
 	DDRD &= ~(1<<DDRD0);
@@ -104,6 +110,17 @@ void Initialize()
 	ADCSRA |= (1 << ADSC);
 	
 	sei(); // Enable global interrupts
+}
+
+void Check_Bumpers() {
+	DDRD |= (1<<DDRD2); // Front of the car
+	DDRD |= (1<<DDRD3); // Bottom of the car
+	DDRB |= (1<<DDRB4); // Left of the car
+	DDRB |= (1<<DDRB5); // Right of the car
+
+	if (!(PINE & (1<<PINE0))) { // If any of the pins 
+		Forward();
+	} else if (PINE & (1<<PINE1))
 }
 
 void Wifi_Manual_Motor_Control() {
