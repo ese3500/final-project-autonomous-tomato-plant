@@ -19,7 +19,8 @@ uint16_t adc1; // Bottom right LDR
 uint16_t adc2; // Top right LDR
 uint16_t adc3; // Top left LDR
 
-uint16_t adc_max;// LDR value with max ADC reading
+uint16_t adc_max;// LDR value with max ADC reading - need for MoveCar()
+uint16_t adc_max;// LDR value with min ADC reading - need for MoveCar()
 
 // Enumeration for face types
 typedef enum {
@@ -183,7 +184,7 @@ void ReadADCForLDR(void) {
 	_delay_ms(1000);	
 }
 
-uint16_t DetermineMaxLDR() {
+uint16_t MoveCar() {
 	adc_max = max(adc0, adc1, adc2, adc3);
 	adc_min = min(adc0, adc1, adc2, adc3);
 
