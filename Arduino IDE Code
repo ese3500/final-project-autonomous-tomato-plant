@@ -5,10 +5,12 @@ char auth[] = BLYNK_AUTH_TOKEN;
 void setup()
 {
   // Set output pins 
-  pinMode(13, OUTPUT); // Ahead
-  pinMode(12, OUTPUT); // Backwards
+  pinMode(13, OUTPUT); // Forward
+  pinMode(12, OUTPUT); // Reverse
   pinMode(27, OUTPUT); // Left
   pinMode(33, OUTPUT); // Right
+  pinMode(15, OUTPUT); // Drift Left
+  pinMode(32, OUTPUT); // Drift Right
   
   // Debug console
   Serial.begin(9600);
@@ -28,24 +30,49 @@ BLYNK_WRITE(V0) // Executes when the value of virtual pin 0 changes
 }
 
 // Virtual Pin V1 controls moves the car straight backwards
-BLYNK_WRITE (V1)
-{
-  if(param.asInt() == 1) { digitalWrite(12,HIGH); }
-  else { digitalWrite(12,LOW); }
+BLYNK_WRITE(V1) {
+  if (param.asInt() == 1) {
+    digitalWrite(12, HIGH);
+  } else {
+    digitalWrite(12, LOW);
+  }
 }
 
 // Virtual Pin V2 controls moves the car straight to the left
-BLYNK_WRITE (V2)
-{
-  if(param.asInt() == 1) { digitalWrite(27,HIGH); }
-  else { digitalWrite(27,LOW); }
+BLYNK_WRITE(V2) {
+  if (param.asInt() == 1) {
+    digitalWrite(27, HIGH);
+  } else {
+    digitalWrite(27, LOW);
+  }
 }
 
 // Virtual Pin V3 controls moves the car straight to the right
-BLYNK_WRITE (V3)
+BLYNK_WRITE(V3) {
+  if (param.asInt() == 1) {
+    digitalWrite(33, HIGH);
+  } else {
+    digitalWrite(33, LOW);
+  }
+}
+
+// Virtual Pin V4 controls moves the car drifting to the left
+BLYNK_WRITE(V4) {
+  if (param.asInt() == 1) {
+    digitalWrite(15, HIGH);
+  } else {
+    digitalWrite(15, LOW);
+  }
+}
+
+// Virtual Pin V5 controls moves the car drifting to the right
+BLYNK_WRITE (V5)
 {
-  if(param.asInt() == 1) { digitalWrite(33,HIGH); }
-  else { digitalWrite(33,LOW); }
+  if(param.asInt() == 1) {
+    digitalWrite(32,HIGH); 
+  } else { 
+    digitalWrite(32,LOW); 
+  }
 }
 
 void loop()
