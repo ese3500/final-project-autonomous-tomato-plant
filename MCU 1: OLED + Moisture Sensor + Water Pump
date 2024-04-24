@@ -114,7 +114,7 @@ int main(void)
 		moisture_value_ADC = ADC;
 
 		// We want the moisture value to be between 530-570. Anything above is too dry, and anything below is too wet.
-		if (moisture_value_ADC > 390) {
+		if (moisture_value_ADC > 450) {
 			if (face == FROWNY) {
 				// do nothing
 			} else {
@@ -122,7 +122,7 @@ int main(void)
 				Frowny();
 			}
 			Water_Plant();
-		} else if (moisture_value_ADC > 350) {
+		} else if (moisture_value_ADC > 330) {
 			if (face == SMILEY) {
 				// do nothing
 			} else {
