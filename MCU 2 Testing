@@ -1,0 +1,212 @@
+#define F_CPU 16000000UL
+
+#include <stdlib.h>
+#include <math.h>
+#include <stdio.h>
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+#include "uart.h"
+#include "ldr.h"
+#include "motor_control.h"
+
+
+//stuff for uart print
+#define BAUD_RATE 9600
+#define BAUD_PRESCALER (((F_CPU / (BAUD_RATE * 16UL))) - 1)
+
+char msg[50];
+uint16_t adc0;
+uint16_t adc1;
+uint16_t adc2;
+uint16_t adc3;
+uint16_t adc_max;// LDR value with max ADC reading - need for MoveCar()
+uint16_t adc_min;// LDR value with min ADC reading - need for MoveCar()
+int maxldr;
+
+void adc(void) {
+	adc0 = ADC_read(0);
+	adc1 = ADC_read(1);
+	adc2 = ADC_read(2);
+	adc3 = ADC_read(3);
+	sprintf(msg, "ADC0: %d \r\n", adc0);
+	UART_putstring(msg);
+	sprintf(msg, "ADC1: %d \r\n", adc1);
+	UART_putstring(msg);	
+	sprintf(msg, "ADC2: %d \r\n", adc2);
+	UART_putstring(msg);	
+	sprintf(msg, "ADC3: %d \r\n \r\n", adc3);
+	UART_putstring(msg);
+}
+
+int16_t maxoffour(int16_t a, int16_t b, int16_t c, int16_t d) {
+	int16_t max = a;  // Start by assuming 'a' is the max
+	maxldr = 0;
+	if (b > max) {
+		max = b;  // Update max if 'b' is greater
+		maxldr = 1;
+	}
+	if (c > max) {
+		max = c;  // Update max if 'c' is greater
+		maxldr = 2;
+	}
+	if (d > max) {
+		max = d;  // Update max if 'd' is greater
+		maxldr = 3;
+	}
+
+	return max;  // Return the maximum value
+}
+
+int16_t minoffour(int16_t a, int16_t b, int16_t c, int16_t d) {
+	int16_t min = a;  // Start by assuming 'a' is the max
+	if (b < min) {
+		min = b;  // Update max if 'b' is greater
+	}
+	if (c < min) {
+		min = c;  // Update max if 'c' is greater
+	}
+	if (d < min) {
+		min = d;  // Update max if 'd' is greater
+	}
+
+	return min;  // Return the maximum value
+}
+
+
+void initialize(void) {
+	cli();
+	
+	ADC_init();
+	init_motor_pins();
+	
+	// Initialize input pins for collision bumpers
+	DDRD &= ~(1<<DDRD0); 
+	DDRD &= ~(1<<DDRD2); 
+	DDRD &= ~(1<<DDRD3); 
+	DDRC &= ~(1<<DDRC4);
+
+    // Enable Pin Change Interrupts for PCIE2 and PCIE1
+    PCICR |= (1 << PCIE2) | (1 << PCIE1);
+
+    // Set the mask registers for the pins we are interested in
+    PCMSK2 |= (1 << PCINT16) | (1 << PCINT18) | (1 << PCINT19);
+    PCMSK1 |= (1 << PCINT12);
+	
+	DDRC |= (1 << DDRC5);
+	PORTC &= ~(1 << PC5);
+	
+	UART_init(BAUD_PRESCALER);
+	sprintf(msg, "Initialized!\r\n");
+	UART_putstring(msg);
+
+	sei();
+}
+
+void MoveCar() {
+	adc_max = maxoffour(adc0, adc1, adc2, adc3);
+	adc_min = minoffour(adc0, adc1, adc2, adc3);
+
+	if ((adc_max - adc_min) <= 120) {
+		// Falls in the dead zone range: if the ADC readings of the LDRs are all around the same range, don't move the car
+		stop();
+		sprintf(msg, "stop\r\n");
+		UART_putstring(msg);
+		_delay_ms(100);
+	} 
+	else if (maxldr == 0) { // Bottom left LDR
+		left();
+		sprintf(msg, "rl\r\n");
+		UART_putstring(msg);
+		_delay_ms(1500);
+		stop();
+		_delay_ms(100);
+	} 
+	else if (maxldr == 1) { // Bottom right LDR
+		sprintf(msg, "rr\r\n");
+		UART_putstring(msg);
+		right();
+		_delay_ms(2500);
+		stop();
+		_delay_ms(100);
+	} 
+	else if (maxldr == 2) { // Top right LDR
+		sprintf(msg, "fr\r\n");
+		UART_putstring(msg);
+		forward();
+		_delay_ms(100);
+
+		drift_right();
+		_delay_ms(300);
+		
+		right();
+		_delay_ms(150);
+		stop();
+	}
+	else if (maxldr == 3) { // Top left LDR
+		sprintf(msg, "fl\r\n");
+		UART_putstring(msg);
+		forward();
+		_delay_ms(150);
+
+		drift_left();
+		_delay_ms(100);
+		stop();
+	}
+}
+
+void Wifi_Manual_Motor_Control() {
+	if (PINE & (1<<PINE0)) { // If PE0 is high, move the car forward
+		while (PINE & (1<<PINE0)) {
+			forward();
+		}
+		} else if (PINE & (1<<PINE1)) { // If PE1 is high, move the car reverse
+		while (PINE & (1<<PINE1)) {
+			reverse();
+		}
+		} else if (PINE & (1<<PINE2)) { // If PE2 is high, move the car left
+		while (PINE & (1<<PINE2)) {
+			left();
+		}
+		} else if (PINE & (1<<PINE3)) { // If PE3 is high, move the car right
+		while (PINE & (1<<PINE3)) {
+			right();
+		}
+		} else if (PINB & (1<<PINB4)) { // If PB4 is high, drift the car left
+		while (PINB & (1<<PINB4)) {
+			drift_left();
+		}
+		} else if (PINB & (1<<PINB5)) { // If PB5 is high, drift the car right
+		while (PINB & (1<<PINB5)) {
+			drift_right();
+		}
+		} else {
+		stop();
+	}
+}
+
+void Collision() {
+	stop();
+	PINC |= (1 << PC5);
+}
+
+ISR(PCINT2_vect) {
+	Collision();
+}
+
+// ISR for PCINT1 which covers C4
+ISR(PCINT1_vect) {
+	Collision();
+}
+
+
+int main(void)
+{
+	initialize();
+    while (1) {
+		adc();
+		MoveCar();
+		Wifi_Manual_Motor_Control();
+    }
+}
+
