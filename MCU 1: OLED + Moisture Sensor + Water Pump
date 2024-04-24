@@ -78,7 +78,6 @@ void Water_Plant() {
 	//}
 }
 
-
 void Smiley() {
 	LCD_drawString(1, 1, "I'm happy and growing some basil", 0x0000, 0xFFFF);
 	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
@@ -115,7 +114,7 @@ int main(void)
 		moisture_value_ADC = ADC;
 
 		// We want the moisture value to be between 530-570. Anything above is too dry, and anything below is too wet.
-		if (moisture_value_ADC > 570) {
+		if (moisture_value_ADC > 390) {
 			if (face == FROWNY) {
 				// do nothing
 			} else {
@@ -123,7 +122,7 @@ int main(void)
 				Frowny();
 			}
 			Water_Plant();
-		} else if (moisture_value_ADC > 530) {
+		} else if (moisture_value_ADC > 350) {
 			if (face == SMILEY) {
 				// do nothing
 			} else {
