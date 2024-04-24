@@ -83,7 +83,7 @@ void Water_Plant() {
 }
 
 void Smiley() {
-	LCD_drawString(1, 1, "I'm happy and growing some basil", 0x0000, 0xFFFF);
+	LCD_drawString(1, 1, "I'm a happy basil", 0x0000, 0xFFFF);
 	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
 	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
 	LCD_drawCircle(105, 55, 6, 0x0000);
