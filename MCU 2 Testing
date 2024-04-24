@@ -79,22 +79,19 @@ void initialize(void) {
 	ADC_init();
 	init_motor_pins();
 	
-	// Initialize input pins for collision bumpers
-	DDRD &= ~(1<<DDRD0); // PCINT16
-	DDRD &= ~(1<<DDRD2); // PCINT18
-	DDRC &= ~(1<<DDRC4); // PCINT12
-	DDRC &= ~(1<<DDRC5); // PCINT13
+	DDRD &= ~(1 << DDD0);  // Clear the PD0 bit in DDRD, PD0 as input
+	PORTD |= (1 << PD0);   // Optionally enable the pull-up resistor
 
-	// Enable pin change interrupt for PCINT[14:8] and PCINT[23:16]
-	PCICR |= (1<<PCIE1);
-	PCICR |= (1<<PCIE2);
+	// Configure INT0 to trigger on a rising edge
+	EICRA |= (1 << ISC01) | (1 << ISC00); // Set INT0 to trigger on rising edge
 
-	// Enable pin change interrupts for collision bumper input pins
-	PCMSK1 |= (1<<PCINT12);
-	PCMSK1 |= (1<<PCINT13);
-	PCMSK2 |= (1<<PCINT16);
-	PCMSK2 |= (1<<PCINT18);
+	// Enable INT0
+	EIMSK |= (1 << INT0);
 	
+	
+	
+	sprintf(msg, "Initialized!\r\n");
+	UART_putstring(msg);
 	sei(); // Enable global interrupts
 }
 
@@ -184,21 +181,11 @@ void Collision() {
 	stop();
 }
 
-ISR(PCINT12_vect) {
+ISR(INT0_vect) {
+	// Handle the interrupt caused by a change on PD0 here
 	Collision();
 }
 
-ISR(PCINT13_vect) {
-	Collision();
-}
-
-ISR(PCINT16_vect) {
-	Collision();
-}
-
-ISR(PCINT18_vect) {
-	Collision();
-}
 
 int main(void)
 {
