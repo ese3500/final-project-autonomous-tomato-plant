@@ -59,8 +59,9 @@ void Initialize()
 	DDRE &= ~(1<<DDRE1); // Virtual pin 0 maps to MCU PE1 and calls Reverse()
 	DDRE &= ~(1<<DDRE2); // Virtual pin 0 maps to MCU PE2 and calls Left()
 	DDRE &= ~(1<<DDRE3); // Virtual pin 0 maps to MCU PE3 and calls Right()
-	DDRB &= ~(1<<DDRB4); // Virtual pin 0 maps to MCU PD0 and calls Drift_Left()
-	DDRB &= ~(1<<DDRB5); // Virtual pin 0 maps to MCU PD1 and calls Drift_Right()
+	DDRB &= ~(1<<DDRB4); // Virtual pin 0 maps to MCU PB4 and calls Drift_Left()
+	DDRB &= ~(1<<DDRB5); // Virtual pin 0 maps to MCU PB5 and calls Drift_Right()
+
 
 	// Initialize input pins for collision bumpers 
 	DDRD &= ~(1<<DDRD0); // Front of the car (PCINT16)
