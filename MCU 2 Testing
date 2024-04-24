@@ -81,26 +81,28 @@ void initialize(void) {
 	init_motor_pins();
 	
 	// Initialize input pins for collision bumpers
-	DDRD &= ~(1<<DDRD0); 
-	DDRD &= ~(1<<DDRD2); 
-	DDRD &= ~(1<<DDRD3); 
-	DDRC &= ~(1<<DDRC4);
+	DDRD &= ~(1<<DDRD0); // PCINT16
+	DDRD &= ~(1<<DDRD2); // PCINT18
+	DDRC &= ~(1<<DDRC4); // PCINT12
+	DDRC &= ~(1<<DDRC5); // PCINT13
 
-    // Enable Pin Change Interrupts for PCIE2 and PCIE1
-    PCICR |= (1 << PCIE2) | (1 << PCIE1);
+    	// Enable pin change interrupt for PCINT[14:8] and PCINT[23:16]
+	PCICR |= (1<<PCIE1);
+	PCICR |= (1<<PCIE2);
 
-    // Set the mask registers for the pins we are interested in
-    PCMSK2 |= (1 << PCINT16) | (1 << PCINT18) | (1 << PCINT19);
-    PCMSK1 |= (1 << PCINT12);
+    	// Enable pin change interrupts for collision bumper input pins
+	PCMSK1 |= (1<<PCINT12);
+	PCMSK1 |= (1<<PCINT13);
+	PCMSK2 |= (1<<PCINT16);
+	PCMSK2 |= (1<<PCINT18);
 	
+	// Set PC5 as an output pin (for signaling OLED screen change to other MCU)
 	DDRC |= (1 << DDRC5);
 	PORTC &= ~(1 << PC5);
 	
-	UART_init(BAUD_PRESCALER);
-	sprintf(msg, "Initialized!\r\n");
-	UART_putstring(msg);
+	sei(); // Enable global interrupts
+}
 
-	sei();
 }
 
 void MoveCar() {
