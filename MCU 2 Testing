@@ -10,7 +10,6 @@
 #include "ldr.h"
 #include "motor_control.h"
 
-
 //stuff for uart print
 #define BAUD_RATE 9600
 #define BAUD_PRESCALER (((F_CPU / (BAUD_RATE * 16UL))) - 1)
@@ -32,9 +31,9 @@ void adc(void) {
 	sprintf(msg, "ADC0: %d \r\n", adc0);
 	UART_putstring(msg);
 	sprintf(msg, "ADC1: %d \r\n", adc1);
-	UART_putstring(msg);	
+	UART_putstring(msg);
 	sprintf(msg, "ADC2: %d \r\n", adc2);
-	UART_putstring(msg);	
+	UART_putstring(msg);
 	sprintf(msg, "ADC3: %d \r\n \r\n", adc3);
 	UART_putstring(msg);
 }
@@ -75,7 +74,7 @@ int16_t minoffour(int16_t a, int16_t b, int16_t c, int16_t d) {
 
 
 void initialize(void) {
-	cli();
+	cli(); // Disable global interrupts
 	
 	ADC_init();
 	init_motor_pins();
@@ -86,23 +85,17 @@ void initialize(void) {
 	DDRC &= ~(1<<DDRC4); // PCINT12
 	DDRC &= ~(1<<DDRC5); // PCINT13
 
-    	// Enable pin change interrupt for PCINT[14:8] and PCINT[23:16]
+	// Enable pin change interrupt for PCINT[14:8] and PCINT[23:16]
 	PCICR |= (1<<PCIE1);
 	PCICR |= (1<<PCIE2);
 
-    	// Enable pin change interrupts for collision bumper input pins
+	// Enable pin change interrupts for collision bumper input pins
 	PCMSK1 |= (1<<PCINT12);
 	PCMSK1 |= (1<<PCINT13);
 	PCMSK2 |= (1<<PCINT16);
 	PCMSK2 |= (1<<PCINT18);
 	
-	// Set PC5 as an output pin (for signaling OLED screen change to other MCU)
-	DDRC |= (1 << DDRC5);
-	PORTC &= ~(1 << PC5);
-	
 	sei(); // Enable global interrupts
-}
-
 }
 
 void MoveCar() {
@@ -115,7 +108,7 @@ void MoveCar() {
 		sprintf(msg, "stop\r\n");
 		UART_putstring(msg);
 		_delay_ms(100);
-	} 
+	}
 	else if (maxldr == 0) { // Bottom left LDR
 		left();
 		sprintf(msg, "rl\r\n");
@@ -123,7 +116,7 @@ void MoveCar() {
 		_delay_ms(1500);
 		stop();
 		_delay_ms(100);
-	} 
+	}
 	else if (maxldr == 1) { // Bottom right LDR
 		sprintf(msg, "rr\r\n");
 		UART_putstring(msg);
@@ -131,7 +124,7 @@ void MoveCar() {
 		_delay_ms(2500);
 		stop();
 		_delay_ms(100);
-	} 
+	}
 	else if (maxldr == 2) { // Top right LDR
 		sprintf(msg, "fr\r\n");
 		UART_putstring(msg);
@@ -189,26 +182,30 @@ void Wifi_Manual_Motor_Control() {
 
 void Collision() {
 	stop();
-	PINC |= (1 << PC5);
 }
 
-ISR(PCINT2_vect) {
+ISR(PCINT12_vect) {
 	Collision();
 }
 
-// ISR for PCINT1 which covers C4
-ISR(PCINT1_vect) {
+ISR(PCINT13_vect) {
 	Collision();
 }
 
+ISR(PCINT16_vect) {
+	Collision();
+}
+
+ISR(PCINT18_vect) {
+	Collision();
+}
 
 int main(void)
 {
 	initialize();
-    while (1) {
+	while (1) {
 		adc();
 		MoveCar();
 		Wifi_Manual_Motor_Control();
-    }
+	}
 }
-
