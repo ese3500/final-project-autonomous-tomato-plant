@@ -22,34 +22,6 @@ uint16_t adc3; // Top left LDR
 uint16_t adc_max;// LDR value with max ADC reading - need for MoveCar()
 uint16_t adc_max;// LDR value with min ADC reading - need for MoveCar()
 
-// Enumeration for face types
-typedef enum {
-	FROWNY = 0,
-	SMILEY = 1,
-	DROWNING = 2
-} FaceType;
-
-FaceType face = FROWNY;  // Set the initial face to frowny
-
-int moisture_value_ADC = 0; // The moisture is measured by ADC
-
-// Metrics to display on OLED (dim, normal, bright)
-typedef enum {
-	DIM = 0,
-	NORMAL = 1,
-	BRIGHT = 2,
-} LightType;
-
-LightType light_metric_display = NORMAL;  // Set the initial light metric to normal
-
-//typedef enum {
-	//DRY = 0,
-	//NORMAL = 1
-	//SOGGY = 2,
-//} MoistureType;
-//
-//LightType moisture_metric_display = NORMAL;  // Set the initial moisture metric to normal
-
 void Initialize()
 {
 	cli(); // Disable global interrupts
@@ -62,63 +34,20 @@ void Initialize()
 	DDRB &= ~(1<<DDRB4); // Virtual pin 0 maps to MCU PB4 and calls Drift_Left()
 	DDRB &= ~(1<<DDRB5); // Virtual pin 0 maps to MCU PB5 and calls Drift_Right()
 
-
 	// Initialize input pins for collision bumpers 
-	DDRD &= ~(1<<DDRD0); // Front of the car (PCINT16)
-	DDRD &= ~(1<<DDRD1); // Bottom of the car (PCINT17)
-	DDRD &= ~(1<<DDRD2); // Left of the car (PCINT18)
-	DDRC &= ~(1<<DDRC4); // Right of the car (PCINT12)
+	DDRC &= ~(1<<DDRC0); // Front of the car (PCINT8)
+	DDRC &= ~(1<<DDRC1); // Bottom of the car (PCINT9)
+	DDRC &= ~(1<<DDRC2); // Left of the car (PCINT10)
+	DDRC &= ~(1<<DDRC3); // Right of the car (PCINT11)
 
-	// Enable pin change interrupt for PCINT[14:8] and PCINT[23:16]
+	// Enable pin change interrupt for PCINT[14:8]
 	PCICR |= (1<<PCIE1);
-	PCICR |= (1<<PCIE2);
 	
 	// Enable pin change interrupts for collision bumper input pins
-	PCMSK1 |= (1<<PCINT12);
-	PCMSK2 |= (1<<PCINT16);
-	PCMSK2 |= (1<<PCINT17);
-	PCMSK2 |= (1<<PCINT18);
-	
-	// Moisture sensor input pin
-	DDRD &= ~(1<<DDRD0);
-
-	lcd_init();
-	
-	// Setup for ADC (10bit = 0-1023)
-	// Clear power reduction bit for ADC
-	PRR0 &= ~(1 << PRADC);
-
-	// Select Vref = AVcc
-	ADMUX |= (1 << REFS0);
-	ADMUX &= ~(1 << REFS1);
-
-	// Set the ADC clock div by 128
-	// 16M/128=125kHz
-	ADCSRA |= (1 << ADPS0);
-	ADCSRA |= (1 << ADPS1);
-	ADCSRA |= (1 << ADPS2);
-
-	// Select Channel ADC0 (pin C0)
-	ADMUX &= ~(1 << MUX0);
-	ADMUX &= ~(1 << MUX1);
-	ADMUX &= ~(1 << MUX2);
-	ADMUX &= ~(1 << MUX3);
-
-	ADCSRA |= (1 << ADATE);   // Autotriggering of ADC
-
-	// Free running mode ADTS[2:0] = 000
-	ADCSRB &= ~(1 << ADTS0);
-	ADCSRB &= ~(1 << ADTS1);
-	ADCSRB &= ~(1 << ADTS2);
-
-	// Disable digital input buffer on ADC pin
-	DIDR0 |= (1 << ADC0D);
-
-	// Enable ADC
-	ADCSRA |= (1 << ADEN);
-
-	// Start conversion
-	ADCSRA |= (1 << ADSC);
+	PCMSK1 |= (1<<PCINT8);
+	PCMSK2 |= (1<<PCINT9);
+	PCMSK2 |= (1<<PCINT10);
+	PCMSK2 |= (1<<PCINT11);
 	
 	sei(); // Enable global interrupts
 }
@@ -129,19 +58,19 @@ void Collision() {
 	LCD_drawString(1, 1, "Collision! Please move me.", 0x0000, 0xFF0F);
 }
 
-ISR(PCINT12_vect) { 
+ISR(PCINT8_vect) { 
 	Collision();
 }
 
-ISR(PCINT16_vect) { 
+ISR(PCINT9_vect) { 
 	Collision();
 }
 
-ISR(PCINT17_vect) { 
+ISR(PCINT10_vect) { 
 	Collision();
 }
 
-ISR(PCINT18_vect) { 
+ISR(PCINT11_vect) { 
 	Collision();
 }
 
@@ -291,59 +220,11 @@ void MoveCar() {
 	}
 }
 
-void Smiley() {
-	LCD_drawString(1, 1, "I'm happy and growing some basil", 0x0000, 0xFFFF);
-	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
-	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
-	LCD_drawCircle(105, 55, 6, 0x0000);
-	LCD_drawCircle(80, 90, 20, 0xF00F); // Mouth
-	LCD_drawBlock(60, 70, 100, 90, 0xFF0F);
-}
-
-void Frowny() {
-	LCD_drawString(1, 1, "Give me water!", 0x0000, 0xFFFF);
-	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
-	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
-	LCD_drawCircle(105, 55, 6, 0x0000);
-	LCD_drawCircle(80, 95, 20, 0xF00F); // Mouth
-	LCD_drawBlock(60, 95, 100, 115, 0xFF0F);
-}
-
-void Drowning() {
-	LCD_drawString(1, 1, "I'm drowning! Help!!", 0x0000, 0xFFFF);
-	LCD_drawCircle(80, 73, 50, 0x00FF); // Face
-	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
-	LCD_drawCircle(105, 55, 6, 0x0000);
-	LCD_drawCircle(80, 95, 20, 0xF00F); // Mouth
-	LCD_drawBlock(60, 95, 100, 115, 0x00FF);
-}
-
-void Update_Light_Metric() {
-	if (light_metric_display == DIM) {
-		LCD_drawString(1, 10, "Light: Dim", 0x0000, 0xFFFF);
-	} else if (light_metric_display == NORMAL) {
-		LCD_drawString(1, 10, "Light: Normal", 0x0000, 0xFFFF);
-	} else {
-		LCD_drawString(1, 10, "Light: High", 0x0000, 0xFFFF);
-	}
-}
-
-//void Update_Moisture_Metric() {
-	//if (moisture_metric_display == DRY) {
-		//LCD_drawString(1, 10, "Moisture Level: Dry", 0x0000, 0xFFFF);
-	//} else if (moisture_metric_display == NORMAL) {
-		//LCD_drawString(1, 10, "Moisture Level: Normal", 0x0000, 0xFFFF);
-	//} else {
-		//LCD_drawString(1, 10, "Moisture Level: Soggy", 0x0000, 0xFFFF);
-	//}
-//}
-
 int main(void)
 {
 	Initialize();
-	LCD_setScreen(0xFFFF); 
 
-  ADC_init();
+  	ADC_init();
 	Init_motor_pins();
 		
 	// UART_init(BAUD_PRESCALER);
@@ -352,34 +233,10 @@ int main(void)
 
 	while(1){
     		ReadADCForLDR();
-		Update_Light_Metric();
 		MoveCar();
 		Wifi_Manual_Motor_Control();
 
 		moisture_value_ADC = ADC;
 
-		// We want the moisture value to be between 530-570. Anything above is too dry, and anything below is too wet.
-		if (moisture_value_ADC > 570) {
-			if (face == FROWNY) {
-				// do nothing
-			} else {
-				face = FROWNY;
-				Frowny();
-			}
-		} else if (moisture_value_ADC > 530) {
-			if (face == SMILEY) {
-				// do nothing
-			} else {
-				face = SMILEY;
-				Smiley();
-			}
-		} else {
-			if (face == DROWNING) {
-				// do nothing
-			} else {
-				face = DROWNING;
-				Drowning();
-			}
-		}
 	}
 }
