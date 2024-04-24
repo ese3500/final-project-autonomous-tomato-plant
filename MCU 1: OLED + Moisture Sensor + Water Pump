@@ -1,5 +1,6 @@
 #define F_CPU 16000000UL
 #define BAUD_RATE 9600
+#define BAUD_PRESCALER (((F_CPU / (BAUD_RATE * 16UL))) - 1)
 
 #include <avr/io.h>
 #include "ST7735.h"
@@ -7,6 +8,9 @@
 #include <stdlib.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+
+#include "uart.h"
+char String[50];
 
 // Enumeration for face types
 typedef enum {
@@ -109,9 +113,15 @@ int main(void)
 {
 	Initialize();
 	LCD_setScreen(0xFFFF);
+	UART_init(BAUD_PRESCALER);
+
 	
 	while(1){
 		moisture_value_ADC = ADC;
+
+		sprintf(String,"Moisture ADC Value: %d \r\n", moisture_value_ADC);
+		UART_putstring(String);
+		_delay_ms(200);
 
 		// We want the moisture value to be between 530-570. Anything above is too dry, and anything below is too wet.
 		if (moisture_value_ADC > 450) {
