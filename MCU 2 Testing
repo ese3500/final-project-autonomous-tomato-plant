@@ -10,19 +10,26 @@
 #include "ldr.h"
 #include "motor_control.h"
 
-//stuff for uart print
+// Stuff for uart print
 #define BAUD_RATE 9600
 #define BAUD_PRESCALER (((F_CPU / (BAUD_RATE * 16UL))) - 1)
-
 char msg[50];
-uint16_t adc0;
-uint16_t adc1;
-uint16_t adc2;
-uint16_t adc3;
-uint16_t adc_max;// LDR value with max ADC reading - need for MoveCar()
-uint16_t adc_min;// LDR value with min ADC reading - need for MoveCar()
-int maxldr;
 
+// ADC values for the LDR
+uint16_t adc0; // Bottom left LDR
+uint16_t adc1; // Botom right LDR
+uint16_t adc2; // Top right LDR
+uint16_t adc3; // Top left LDR
+
+uint16_t adc_max; // LDR value with max ADC reading - need for MoveCar()
+uint16_t adc_min; // LDR value with min ADC reading - need for MoveCar()
+
+int maxldr; // LDR value with the max ADC reading - need for maxoffour()
+
+volatile uint8_t crashed = 0;
+volatile uint8_t buttonStateAtCapture = 0;
+
+// Function for reading all four ADC values continuously 
 void adc(void) {
 	adc0 = ADC_read(0);
 	adc1 = ADC_read(1);
@@ -38,6 +45,7 @@ void adc(void) {
 	UART_putstring(msg);
 }
 
+// Function that returns the maximum value between four numbers
 int16_t maxoffour(int16_t a, int16_t b, int16_t c, int16_t d) {
 	int16_t max = a;  // Start by assuming 'a' is the max
 	maxldr = 0;
@@ -57,6 +65,7 @@ int16_t maxoffour(int16_t a, int16_t b, int16_t c, int16_t d) {
 	return max;  // Return the maximum value
 }
 
+// Function that returns the minimum value between four numbers
 int16_t minoffour(int16_t a, int16_t b, int16_t c, int16_t d) {
 	int16_t min = a;  // Start by assuming 'a' is the max
 	if (b < min) {
@@ -75,26 +84,24 @@ int16_t minoffour(int16_t a, int16_t b, int16_t c, int16_t d) {
 
 void initialize(void) {
 	cli(); // Disable global interrupts
-	
+	UART_init(BAUD_PRESCALER);
 	ADC_init();
 	init_motor_pins();
 	
-	DDRD &= ~(1 << DDD0);  // Clear the PD0 bit in DDRD, PD0 as input
-	PORTD |= (1 << PD0);   // Optionally enable the pull-up resistor
-
-	// Configure INT0 to trigger on a rising edge
-	EICRA |= (1 << ISC01) | (1 << ISC00); // Set INT0 to trigger on rising edge
-
-	// Enable INT0
-	EIMSK |= (1 << INT0);
+	// Set up PE0 edge capture interrupt 
+	TIMSK4 |= (1<<ICIE4); // Enable input capture for PE0
+	TCCR4B |= (1<<ICIE4); // Set bit to 1 to that it detects high to low edge
 	
+    DDRC &= ~(1 << DDC5);  // Clear the PC5 bit in DDRC, PC5 as input
 	
+	TIMSK3 |= (1 << TOIE3);
 	
 	sprintf(msg, "Initialized!\r\n");
 	UART_putstring(msg);
 	sei(); // Enable global interrupts
 }
 
+// Function for automatically moving the car based on LDR ADC values
 void MoveCar() {
 	adc_max = maxoffour(adc0, adc1, adc2, adc3);
 	adc_min = minoffour(adc0, adc1, adc2, adc3);
@@ -147,50 +154,69 @@ void MoveCar() {
 	}
 }
 
+// Function for implementing motor control using the ESP Wifi Blynk buttons
 void Wifi_Manual_Motor_Control() {
-	if (PINE & (1<<PINE0)) { // If PE0 is high, move the car forward
-		while (PINE & (1<<PINE0)) {
+	if (PINC & (1<<PINC4)) { // If PE0 is high, move the car forward
+		while (PINC & (1<<PINC4)) {
 			forward();
 		}
-		} else if (PINE & (1<<PINE1)) { // If PE1 is high, move the car reverse
+	} else if (PINE & (1<<PINE1)) { // If PE1 is high, move the car reverse
 		while (PINE & (1<<PINE1)) {
 			reverse();
 		}
-		} else if (PINE & (1<<PINE2)) { // If PE2 is high, move the car left
+	} else if (PINE & (1<<PINE2)) { // If PE2 is high, move the car left
 		while (PINE & (1<<PINE2)) {
 			left();
 		}
-		} else if (PINE & (1<<PINE3)) { // If PE3 is high, move the car right
+	} else if (PINE & (1<<PINE3)) { // If PE3 is high, move the car right
 		while (PINE & (1<<PINE3)) {
 			right();
 		}
-		} else if (PINB & (1<<PINB4)) { // If PB4 is high, drift the car left
+	} else if (PINB & (1<<PINB4)) { // If PB4 is high, drift the car left
 		while (PINB & (1<<PINB4)) {
 			drift_left();
 		}
-		} else if (PINB & (1<<PINB5)) { // If PB5 is high, drift the car right
+	} else if (PINB & (1<<PINB5)) { // If PB5 is high, drift the car right
 		while (PINB & (1<<PINB5)) {
 			drift_right();
 		}
-		} else {
+	} else {
 		stop();
 	}
 }
 
-void Collision() {
-	stop();
+
+ISR(TIMER4_CAPT_vect) {
+	TCNT3 = 0;
+	sprintf(msg, "first detect \r\n");
+	UART_putstring(msg);
+	buttonStateAtCapture = !buttonStateAtCapture;
+	TCCR3B = (1 << CS32);
 }
 
-ISR(INT0_vect) {
-	// Handle the interrupt caused by a change on PD0 here
-	Collision();
+ISR(TIMER3_OVF_vect) {
+    if (PINE & (1 << PE0) && buttonStateAtCapture == 1) {
+		crashed = 1;
+	} 
+	else {
+	    crashed = 0;  // Reset if the button is no longer pressed
+    }
+    TCCR3B = 0;
 }
 
 
 int main(void)
 {
+	UART_init(BAUD_PRESCALER);
+	
 	initialize();
 	while (1) {
+		while(crashed) {
+			sprintf(msg, "Crashed = 1\n");
+			UART_putstring(msg);			
+			stop();
+		}
+
 		adc();
 		MoveCar();
 		Wifi_Manual_Motor_Control();
