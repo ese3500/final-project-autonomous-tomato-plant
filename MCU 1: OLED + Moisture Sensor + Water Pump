@@ -28,7 +28,7 @@ void Initialize()
 	cli(); // Disable global interrupts
 	
 	// Water pump output pin
-	DDRD |= (1<<DDRD0);
+	DDRD |= (1<<DDRD2);
 	//// Moisture sensor input pin
 	//DDRC &= ~(1<<DDRC0);
 
@@ -48,7 +48,7 @@ void Initialize()
 	ADCSRA |= (1 << ADPS1);
 	ADCSRA |= (1 << ADPS2);
 
-	// Select Channel ADC0 (pin C0) for moisture sensor 
+	// Select Channel ADC0 (pin C0) for moisture sensor
 	ADMUX &= ~(1 << MUX0);
 	ADMUX &= ~(1 << MUX1);
 	ADMUX &= ~(1 << MUX2);
@@ -75,14 +75,22 @@ void Initialize()
 
 void Water_Plant() {
 	//if (moisture_value_ADC > 570) {
-		PORTD |= (1<<PORTD0);
-		_delay_ms(100);
-		PORTD &= ~(1<<PORTD0);
-		_delay_ms(1000);	
+	sprintf(String,"Pumping water\n");
+	UART_putstring(String);
+		
+	PORTD |= (1<<PORTD2);
+	_delay_ms(1850);
+	PORTD &= ~(1<<PORTD2);
+	
+	sprintf(String,"Done pumping water\n");
+	UART_putstring(String);
+	
+	_delay_ms(5000);
 	//}
 }
 
 void Smiley() {
+	LCD_setScreen(0xFFFF);
 	LCD_drawString(1, 1, "I'm a happy basil", 0x0000, 0xFFFF);
 	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
 	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
@@ -92,6 +100,7 @@ void Smiley() {
 }
 
 void Frowny() {
+	LCD_setScreen(0xFFFF);
 	LCD_drawString(1, 1, "Give me water!", 0x0000, 0xFFFF);
 	LCD_drawCircle(80, 73, 50, 0xFF0F); // Face
 	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
@@ -101,6 +110,7 @@ void Frowny() {
 }
 
 void Drowning() {
+	LCD_setScreen(0xFFFF);
 	LCD_drawString(1, 1, "I'm drowning! Help!!", 0x0000, 0xFFFF);
 	LCD_drawCircle(80, 73, 50, 0x00FF); // Face
 	LCD_drawCircle(55, 55, 6, 0x0000); // Eyes
@@ -127,22 +137,22 @@ int main(void)
 		if (moisture_value_ADC > 450) {
 			if (face == FROWNY) {
 				// do nothing
-			} else {
+				} else {
 				face = FROWNY;
 				Frowny();
 			}
 			Water_Plant();
-		} else if (moisture_value_ADC > 330) {
+			} else if (moisture_value_ADC > 330) {
 			if (face == SMILEY) {
 				// do nothing
-			} else {
+				} else {
 				face = SMILEY;
 				Smiley();
 			}
-		} else {
+			} else {
 			if (face == DROWNING) {
 				// do nothing
-			} else {
+				} else {
 				face = DROWNING;
 				Drowning();
 			}
