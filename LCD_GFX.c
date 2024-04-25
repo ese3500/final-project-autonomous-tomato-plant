@@ -75,14 +75,20 @@ void LCD_drawChar(uint8_t x, uint8_t y, uint16_t character, uint16_t fColor, uin
 * @brief		Draw a colored circle of set radius at coordinates
 * @note
 *****************************************************************************/
-void LCD_drawCircle(uint8_t x0, uint8_t y0, uint8_t radius,uint16_t color) 
-{
-	// assume that x0 and y0 is the center point
-	
-	// we are going to create an approx circle with rectangles:
-	LCD_drawBlock((x0 - radius), (y0 - (radius/2)), (x0 + radius), (y0 + (radius/2)), color); 
-	LCD_drawBlock((x0 - (radius/2)), (y0 - radius), (x0 + (radius/2)), (y0 + radius), color); 
-	LCD_drawBlock((x0 - (3*radius/4)), (y0 - (3*radius/4)), (x0 + (3*radius/4)), (y0 + (3*radius/4)), color); 
+void LCD_drawCircle(uint8_t x0, uint8_t y0, uint8_t radius, uint16_t color) {
+	// Loop over the height of the circle
+	for (int y = -radius; y <= radius; y++) {
+		// Determine the size of slices
+		int sliceWidth = (int)sqrt(radius * radius - y * y);
+		int xStart = x0 - sliceWidth;
+		int xEnd = x0 + sliceWidth;
+
+		LCD_setAddr(xStart, y0 + y, xEnd, y0 + y);
+		int pixelsToFill = 2 * sliceWidth + 1;
+		for (int i = 0; i < pixelsToFill; i++) {
+			SPI_ControllerTx_16bit(color);
+		}
+	}
 }
 
 
