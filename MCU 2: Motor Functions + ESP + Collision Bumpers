@@ -1,171 +1,36 @@
 #define F_CPU 16000000UL
-#define BAUD_RATE 9600
 
-#include <avr/io.h>
-#include "ST7735.h"
-#include "LCD_GFX.h"
 #include <stdlib.h>
-#include <avr/interrupt.h>
 #include <math.h>
 #include <stdio.h>
+#include <avr/io.h>
 #include <util/delay.h>
+#include <avr/interrupt.h>
 #include "uart.h"
 #include "ldr.h"
 #include "motor_control.h"
 
-// Initialize variables for the ADC readings of the LDRs
+// Stuff for uart print
+#define BAUD_RATE 9600
+#define BAUD_PRESCALER (((F_CPU / (BAUD_RATE * 16UL))) - 1)
+char msg[50];
+
+// ADC values for the LDR
 uint16_t adc0; // Bottom left LDR
-uint16_t adc1; // Bottom right LDR
+uint16_t adc1; // Botom right LDR
 uint16_t adc2; // Top right LDR
 uint16_t adc3; // Top left LDR
 
-uint16_t adc_max;// LDR value with max ADC reading - need for MoveCar()
-uint16_t adc_max;// LDR value with min ADC reading - need for MoveCar()
+uint16_t adc_max; // LDR value with max ADC reading - need for MoveCar()
+uint16_t adc_min; // LDR value with min ADC reading - need for MoveCar()
 
-void Initialize()
-{
-	cli(); // Disable global interrupts
+int maxldr; // LDR value with the max ADC reading - need for maxoffour()
 
-	// Initialize input pins for ESP motor driving functionality
-	DDRE &= ~(1<<DDRE0); // Virtual pin 0 maps to MCU PE0 and calls Forward()
-	DDRE &= ~(1<<DDRE1); // Virtual pin 0 maps to MCU PE1 and calls Reverse()
-	DDRE &= ~(1<<DDRE2); // Virtual pin 0 maps to MCU PE2 and calls Left()
-	DDRE &= ~(1<<DDRE3); // Virtual pin 0 maps to MCU PE3 and calls Right()
-	DDRB &= ~(1<<DDRB4); // Virtual pin 0 maps to MCU PB4 and calls Drift_Left()
-	DDRB &= ~(1<<DDRB5); // Virtual pin 0 maps to MCU PB5 and calls Drift_Right()
+volatile uint8_t crashed = 0;
+volatile uint8_t buttonStateAtCapture = 0;
 
-	// Initialize input pins for collision bumpers 
-	DDRC &= ~(1<<DDRC0); // Front of the car (PCINT8)
-	DDRC &= ~(1<<DDRC1); // Bottom of the car (PCINT9)
-	DDRC &= ~(1<<DDRC2); // Left of the car (PCINT10)
-	DDRC &= ~(1<<DDRC3); // Right of the car (PCINT11)
-
-	// Enable pin change interrupt for PCINT[14:8]
-	PCICR |= (1<<PCIE1);
-	
-	// Enable pin change interrupts for collision bumper input pins
-	PCMSK1 |= (1<<PCINT8);
-	PCMSK2 |= (1<<PCINT9);
-	PCMSK2 |= (1<<PCINT10);
-	PCMSK2 |= (1<<PCINT11);
-	
-	sei(); // Enable global interrupts
-}
-
-void Collision() {
-	Stop();
-	LCD_setScreen(0xFF0F); 
-	LCD_drawString(1, 1, "Collision! Please move me.", 0x0000, 0xFF0F);
-}
-
-ISR(PCINT8_vect) { 
-	Collision();
-}
-
-ISR(PCINT9_vect) { 
-	Collision();
-}
-
-ISR(PCINT10_vect) { 
-	Collision();
-}
-
-ISR(PCINT11_vect) { 
-	Collision();
-}
-
-void Check_Bumpers() {
-	DDRD |= (1<<DDRD2); // Front of the car
-	DDRD |= (1<<DDRD3); // Bottom of the car
-	DDRB |= (1<<DDRB4); // Left of the car
-	DDRB |= (1<<DDRB5); // Right of the car
-
-	if (!(PINE & (1<<PINE0))) { // If any of the pins 
-		Forward();
-	} else if (PINE & (1<<PINE1))
-}
-
-void Wifi_Manual_Motor_Control() {
-	if (PINE & (1<<PINE0)) { // If PE0 is high, move the car forward
-		Forward();
-	} else if (PINE & (1<<PINE1)) { // If PE1 is high, move the car reverse
-		Reverse();
-	} else if (PINE & (1<<PINE2)) { // If PE2 is high, move the car left
-		Left();
-	} else if (PINE & (1<<PINE3)) { // If PE3 is high, move the car right
-		Right();
-	} else if (PINB & (1<<PINB0)) { // If PB0 is high, drift the car left
-		Drift_Left();
-	} else if (PINB & (1<<PINB1)) { // If PB1 is high, drift the car right
-		Drift_Right();
-	} else {
-		Stop();
-	}
-}
-
-void Init_motor_pins(void) {
-	// Set all motor control pins to output
-	DDRD |= (1 << PD4) | (1 << PD5) | (1 << PD6) | (1 << PD7);
-	DDRB |= (1 << PB0) | (1 << PB1) | (1 << PB2) | (1 << PB3);
-}
-
-void Forward(void) {
-	PORTD |= (1 << PD4) | (1 << PD6);
-	PORTD &= ~((1 << PD5) | (1 << PD7));
-
-	PORTB |= (1 << PB0) | (1 << PB2);
-	PORTB &= ~((1 << PB1) | (1 << PB3));
-}
-
-void Reverse(void) {
-	PORTD |= (1 << PD5) | (1 << PD7);
-	PORTD &= ~((1 << PD4) | (1 << PD6));
-
-	PORTB |= (1 << PB1) | (1 << PB3);
-	PORTB &= ~((1 << PB0) | (1 << PB2));
-}
-
-void Left(void) {
-	PORTB |= (1 << PB0) | (1 << PB2);
-	PORTB &= ~((1 << PB1) | (1 << PB3));
-}
-
-void Right(void) {
-	PORTD |= (1 << PD4) | (1 << PD6);
-	PORTD &= ~((1 << PD5) | (1 << PD7));
-}
-
-void Stop(void) {
-	PORTD &= ~((1 << PD4) | (1 << PD6));
-	PORTD &= ~((1 << PD5) | (1 << PD7));
-
-	PORTB &= ~((1 << PB0) | (1 << PB2));
-	PORTB &= ~((1 << PB1) | (1 << PB3));
-}
-
-
-void ADC_init() {
-	ADMUX = (1 << REFS0);  // Select AVCC as the reference
-
-	// Enable ADC and set prescaler to 128 for adequate conversion speed
-	ADCSRA = (1 << ADEN) | (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
-}
-
-uint16_t ADC_read(uint8_t channel) {
-	// Select ADC channel with safety mask
-	ADMUX = (ADMUX & 0xF0) | (channel & 0x0F);
-
-	// Start single conversion
-	ADCSRA |= (1 << ADSC);
-
-	// Wait for conversion to complete
-	while (ADCSRA & (1 << ADSC));
-
-	// Get the ADC result
-	return ADC;
-}
-
-void ReadADCForLDR(void) {
+// Function for reading all four ADC values continuously 
+void adc(void) {
 	adc0 = ADC_read(0);
 	adc1 = ADC_read(1);
 	adc2 = ADC_read(2);
@@ -173,70 +38,187 @@ void ReadADCForLDR(void) {
 	sprintf(msg, "ADC0: %d \r\n", adc0);
 	UART_putstring(msg);
 	sprintf(msg, "ADC1: %d \r\n", adc1);
-	UART_putstring(msg);	
+	UART_putstring(msg);
 	sprintf(msg, "ADC2: %d \r\n", adc2);
-	UART_putstring(msg);	
+	UART_putstring(msg);
 	sprintf(msg, "ADC3: %d \r\n \r\n", adc3);
 	UART_putstring(msg);
-		
-	_delay_ms(1000);	
 }
 
-void MoveCar() {
-	adc_max = max(adc0, adc1, adc2, adc3);
-	adc_min = min(adc0, adc1, adc2, adc3);
+// Function that returns the maximum value between four numbers
+int16_t maxoffour(int16_t a, int16_t b, int16_t c, int16_t d) {
+	int16_t max = a;  // Start by assuming 'a' is the max
+	maxldr = 0;
+	if (b > max) {
+		max = b;  // Update max if 'b' is greater
+		maxldr = 1;
+	}
+	if (c > max) {
+		max = c;  // Update max if 'c' is greater
+		maxldr = 2;
+	}
+	if (d > max) {
+		max = d;  // Update max if 'd' is greater
+		maxldr = 3;
+	}
 
-	if (abs((adc_max - adc_min) <= 75)) {
-		// Falls in the deadzone range: if the ADC readings of the LDRs are all around the same range, don't move the car	
-		Stop();
-	} else if (adc_max == 0) { // Bottom left LDR
-		Reverse();
-		Left();
-		Reverse();
-		Left();
-		Reverse();
-		Left();
-	} else if (adc_max == 1) { // Bottom right LDR
-		Reverse();
-		Right();
-		Reverse();
-		Right();
-		Reverse();
-		Right();
-	} else if (adc_max == 2) { // Top right LDR
-		Forward();
-		Right();
-		Forward();
-		Right();
-		Forward();
-		Right();
-	} else if (adc_max == 3) { // Top left LDR
-		Forward();
-		Left();
-		Forward();
-		Left();
-		Forward();
-		Left();
+	return max;  // Return the maximum value
+}
+
+// Function that returns the minimum value between four numbers
+int16_t minoffour(int16_t a, int16_t b, int16_t c, int16_t d) {
+	int16_t min = a;  // Start by assuming 'a' is the max
+	if (b < min) {
+		min = b;  // Update max if 'b' is greater
+	}
+	if (c < min) {
+		min = c;  // Update max if 'c' is greater
+	}
+	if (d < min) {
+		min = d;  // Update max if 'd' is greater
+	}
+
+	return min;  // Return the maximum value
+}
+
+
+void initialize(void) {
+	cli(); // Disable global interrupts
+	UART_init(BAUD_PRESCALER);
+	ADC_init();
+	init_motor_pins();
+	
+	// Set up PE0 edge capture interrupt 
+	TIMSK4 |= (1<<ICIE4); // Enable input capture for PE0
+	TCCR4B |= (1<<ICIE4); // Set bit to 1 to that it detects high to low edge
+	
+    DDRC &= ~(1 << DDC5);  // Clear the PC5 bit in DDRC, PC5 as input
+	
+	TIMSK3 |= (1 << TOIE3);
+	
+	sprintf(msg, "Initialized!\r\n");
+	UART_putstring(msg);
+	sei(); // Enable global interrupts
+}
+
+// Function for automatically moving the car based on LDR ADC values
+void MoveCar() {
+	adc_max = maxoffour(adc0, adc1, adc2, adc3);
+	adc_min = minoffour(adc0, adc1, adc2, adc3);
+
+	if ((adc_max - adc_min) <= 120) {
+		// Falls in the dead zone range: if the ADC readings of the LDRs are all around the same range, don't move the car
+		stop();
+		sprintf(msg, "stop\r\n");
+		UART_putstring(msg);
+		_delay_ms(100);
+	}
+	else if (maxldr == 0) { // Bottom left LDR
+		left();
+		sprintf(msg, "rl\r\n");
+		UART_putstring(msg);
+		_delay_ms(1500);
+		stop();
+		_delay_ms(100);
+	}
+	else if (maxldr == 1) { // Bottom right LDR
+		sprintf(msg, "rr\r\n");
+		UART_putstring(msg);
+		right();
+		_delay_ms(2500);
+		stop();
+		_delay_ms(100);
+	}
+	else if (maxldr == 2) { // Top right LDR
+		sprintf(msg, "fr\r\n");
+		UART_putstring(msg);
+		forward();
+		_delay_ms(100);
+
+		drift_right();
+		_delay_ms(300);
+		
+		right();
+		_delay_ms(150);
+		stop();
+	}
+	else if (maxldr == 3) { // Top left LDR
+		sprintf(msg, "fl\r\n");
+		UART_putstring(msg);
+		forward();
+		_delay_ms(150);
+
+		drift_left();
+		_delay_ms(100);
+		stop();
 	}
 }
 
+// Function for implementing motor control using the ESP Wifi Blynk buttons
+void Wifi_Manual_Motor_Control() {
+	if (PINC & (1<<PINC4)) { // If PE0 is high, move the car forward
+		while (PINC & (1<<PINC4)) {
+			forward();
+		}
+	} else if (PINE & (1<<PINE1)) { // If PE1 is high, move the car reverse
+		while (PINE & (1<<PINE1)) {
+			reverse();
+		}
+	} else if (PINE & (1<<PINE2)) { // If PE2 is high, move the car left
+		while (PINE & (1<<PINE2)) {
+			left();
+		}
+	} else if (PINE & (1<<PINE3)) { // If PE3 is high, move the car right
+		while (PINE & (1<<PINE3)) {
+			right();
+		}
+	} else if (PINB & (1<<PINB4)) { // If PB4 is high, drift the car left
+		while (PINB & (1<<PINB4)) {
+			drift_left();
+		}
+	} else if (PINB & (1<<PINB5)) { // If PB5 is high, drift the car right
+		while (PINB & (1<<PINB5)) {
+			drift_right();
+		}
+	} else {
+		stop();
+	}
+}
+
+
+ISR(TIMER4_CAPT_vect) {
+	TCNT3 = 0;
+	sprintf(msg, "first detect \r\n");
+	UART_putstring(msg);
+	buttonStateAtCapture = !buttonStateAtCapture;
+	TCCR3B = (1 << CS32);
+}
+
+ISR(TIMER3_OVF_vect) {
+    if (PINE & (1 << PE0) && buttonStateAtCapture == 1) {
+		crashed = 1;
+	} 
+	else {
+	    crashed = 0;  // Reset if the button is no longer pressed
+    }
+    TCCR3B = 0;
+}
+
+
 int main(void)
 {
-	Initialize();
+	UART_init(BAUD_PRESCALER);
+	
+	initialize();
+	while (1) {
+		while(crashed) {
+			sprintf(msg, "Crashed = 1\n");
+			UART_putstring(msg);			
+			stop();
+		}
 
-  	ADC_init();
-	Init_motor_pins();
-		
-	// UART_init(BAUD_PRESCALER);
-	// sprintf(msg, "Initialized!\r\n");
-	// UART_putstring(msg);
-
-	while(1){
-    		ReadADCForLDR();
+		adc();
 		MoveCar();
 		Wifi_Manual_Motor_Control();
-
-		moisture_value_ADC = ADC;
-
 	}
 }
