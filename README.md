@@ -106,6 +106,8 @@ If you’ve never made a Github pages website before, you can follow this webpag
 
 What were your results? Namely, what was the final solution/design to your problem?
 
+The final solution was a platform for the plant to be put onto. This platform has wheels that move in the direction with the most light concentration and can be manually moved with Blynk buttons. There is also an automatic watering capability and an OLED screen that displays to the user the state of the plant (happy, thirsty, drowning). Finally, we also included a crash button at the front of the car so that if it crashes into something, the car will stop moving. 
+
 #### 3.1 Software Requirements Specification (SRS) Results
 
 Based on your quantified system performance, comment on how you achieved or fell short of your expected software requirements. You should be quantifying this, using measurement tools to collect data.
@@ -117,6 +119,16 @@ Based on your quantified system performance, comment on how you achieved or fell
 ### 4. Conclusion
 
 Reflect on your project. Some questions to consider: What did you learn from it? What went well? What accomplishments are you proud of? What did you learn/gain from this experience? Did you have to change your approach? What could have been done differently? Did you encounter obstacles that you didn’t anticipate? What could be a next step for this project?
+
+The beginning of the project was stressful since our hardware parts took a significant amount of time to come. However, once we acquired our parts, testing the individual components worked very well, and powering everything went pretty smoothly for the most part; we did have some trip-ups with powering the ESP, but we found ways to do that efficiently. Figuring out how to control the motors also went smoothly. This laid a great, solid foundation for our work on this project. 
+
+We originally planned on implementing stretch goals that consisted of path-planning or object collision avoidance using an ultrasonic sensor. However, given the short amount of time that we had to complete this project, we decided against including path planning since that would require more sophisticated software than we had time to implement. We also decided against object collision avoidance using an ultrasonic sensor and instead implementing object collision avoidance using a push button since that was a simpler solution to object collision avoidance. 
+
+When assembling the project, we were trying to 3D print a platform to which we could secure the MCU and ESP so that it would look nice and sleek, but we decided to use the resources around us in Detkin instead and used cardboard, tape, and hot glue to secure the boards on top of the chassis in a faster, simpler, and more cost-effective way. We used tape and hot glue to water-proof the water pump component.
+
+On top of ensuring the proper functionality of all of the components, we also made an effort to make the project visually appealing and sturdy. To do this, we color-coded the wires the best we could and managed them with tape and zip ties. We also 3D printed an encasing for the plant and used cardboard to create space for the MCUs and ESP to fit nicely and neatly onto the chassis. We also made the OLED displays more visually appealing by using a face, in addition to text, to show the plant's status rather than just letting the user know of the plant's status with plain text. We are proud of executing this additional cherry-on-top visual appeal and hardware organization of the project. 
+
+The next step for this project would be creating different water and sunlight settings that users could choose depending on the plant they are trying to take care of. Basil plants thrive in damp soil and constant sunlight, so this project was calibrated to a basil plant, but different types of plants would need a different kind of care so the functionality of the project would have to be different. 
 
 ## References
 
