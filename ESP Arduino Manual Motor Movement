@@ -41,21 +41,14 @@
 /* Comment this out to disable prints and save space */
 #define BLYNK_PRINT Serial
 
-/* Fill-in your Template ID (only if using Blynk.Cloud) */
-#define BLYNK_TEMPLATE_ID           "TMPL2YLD8FP-r"
-#define BLYNK_TEMPLATE_NAME         "ESE 3500 Lab 4"
-#define BLYNK_AUTH_TOKEN            "337nG-lEQ7lfFCPN-KWhqfw_cS0r1URv" 
-
-
+#define BLYNK_TEMPLATE_ID "TMPL2rP7BPu4b"
+#define BLYNK_TEMPLATE_NAME "Final Project"
+#define BLYNK_AUTH_TOKEN "C8fF7zAv19BPWJ6Vyh1FxzWsGEwv0Yx_"
 
 // Your WiFi credentials.
 // Set password to "" for open networks.
-#define MY_SSID                     "Detkin IOT North"
-                                    //"Detkin IOT North"; 
-                                    //"Keterrer IOT";
+#define MY_SSID                     "Detkin IOT North" 
 #define MY_PASSWORD                 "n0rthC0untry" 
-                                    //"n0rthC0untry" 
-                                    //"theCl0ud";
 
 #include <WiFi.h>
 #include <WiFiClient.h>
@@ -65,11 +58,78 @@
 // Go to the Project Settings (nut icon).
 char auth[] = BLYNK_AUTH_TOKEN;
 
+
 void setup()
 {
+  // Set output pins 
+  pinMode(13, OUTPUT); // Forward
+  pinMode(12, OUTPUT); // Reverse
+  pinMode(27, OUTPUT); // Left
+  pinMode(33, OUTPUT); // Right
+  pinMode(15, OUTPUT); // Drift Left
+  pinMode(32, OUTPUT); // Drift Right
+  
   // Debug console
   Serial.begin(9600);
   Blynk.begin(auth, MY_SSID, MY_PASSWORD);
+}
+
+// Virtual Pin V0 controls moves the car straight ahead
+BLYNK_WRITE(V0) // Executes when the value of virtual pin 0 changes
+{
+  if(param.asInt() == 1) {
+    // execute this code if the switch widget is now ON
+    digitalWrite(13,HIGH);  // Set digital pin 2 HIGH
+  } else {
+    // execute this code if the switch widget is now OFF
+    digitalWrite(13,LOW);  // Set digital pin 2 LOW    
+  }
+}
+
+// Virtual Pin V1 controls moves the car straight backwards
+BLYNK_WRITE(V1) {
+  if (param.asInt() == 1) {
+    digitalWrite(12, HIGH);
+  } else {
+    digitalWrite(12, LOW);
+  }
+}
+
+// Virtual Pin V2 controls moves the car straight to the left
+BLYNK_WRITE(V2) {
+  if (param.asInt() == 1) {
+    digitalWrite(27, HIGH);
+  } else {
+    digitalWrite(27, LOW);
+  }
+}
+
+// Virtual Pin V3 controls moves the car straight to the right
+BLYNK_WRITE(V3) {
+  if (param.asInt() == 1) {
+    digitalWrite(33, HIGH);
+  } else {
+    digitalWrite(33, LOW);
+  }
+}
+
+// Virtual Pin V4 controls moves the car drifting to the left
+BLYNK_WRITE(V4) {
+  if (param.asInt() == 1) {
+    digitalWrite(15, HIGH);
+  } else {
+    digitalWrite(15, LOW);
+  }
+}
+
+// Virtual Pin V5 controls moves the car drifting to the right
+BLYNK_WRITE (V5)
+{
+  if(param.asInt() == 1) {
+    digitalWrite(32,HIGH); 
+  } else { 
+    digitalWrite(32,LOW); 
+  }
 }
 
 void loop()
