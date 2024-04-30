@@ -26,18 +26,25 @@ It's a pain to take care of a tomato plant. You have to adjust where you put the
 By the end of this project, we want to have all of our features listed above to be working, including our stretch goals. 
 
 ### 4. Software Requirements Specification (SRS)
-* ADC for reading the sensors
-* Timer for recording time between watering
-* Interrupts for obstacle collision avoidance
-* Blynk software (wireless communication)
-* Path Planning (stretch goal)
+* ADC for moisture shall update every 200ms.
+* ATMEGA shall control water pump such that it maintains ADC values between 530-570
+* ATMEGA shall be able control the cart in all 6 directions (forward, reverse, left, right, strafe left, strafe right)
+* When bump sensor is pressed, platform shall stop in 0.5s
+* ATMEGA shall correctly identify the brightest light direction, and control the motors to follow it using a combination of directional moves
+* ATMEGA shall determine if the platform is in uniform lighting and not move
+* OLED screen shall immediately update after reading moisture values, i.e. every 200ms.
 
 ### 5. Hardware Requirements Specification (HRS)
-* ATMEGA328PB drives an additional motor controller to drive the stepper motors
-* ATMEGA uses ADC to detect light and move the plant accordingly
-* ATMEGA uses ADC to detect moisture and activates water spray
-* ATMEGA communicates with ESP32 to connect to BLYNK
-* ATMEGA uses ultrasonic sensor for avoiding collisions
+* Project shall be based on ATmega328PB and ESP 32 microcontrollers
+* ESP 32 shall maintain WIFI connection to BLYNK at all times
+* ESP 32 should have its own battery to remain connected to Blynk even while the other components are off
+* Project shall have a battery life greater than 30 mins
+* Motorcontrollers shall be able to spin motors in both directions using H bridge. 
+* Water pump shall not overwater the plant, i.e. dumping the entire water tank into the soil
+* A capacitive soil sensor with ADC reading shall be used
+* 4 light dependent resistors shall be used to determine bighest lighting direction shall be used
+* A push switch shall be used as a bump sensor to detect crashes. 
+* OLED screen from Pong lab shall be used to display moisture status in 3 levels: too little, just right, and too much
 
 ### 6. MVP Demo
 Basic functionality in all components, which are not integrated together yet. For instance, ATEMGA can drive motors, ATMEGA can detect light intensity, or ESP32 can connect to BLYNK.
@@ -50,7 +57,7 @@ We will first get the motors to work and then try to control them based on the l
 
 ### 9. Components
 * ATMEGA328PB because we need an MCU
-* Stepper Motors so that the plant can move around
+* Motors so that the plant can move around
 * Motor Controller to drive the motors if we cannot directly drive the motors using the MCU
 * ESP32 for connecting to WIFI
 * LDR to detect sunlight on the plant
@@ -114,11 +121,11 @@ The final solution was a platform for the plant to be put onto. This platform ha
 
 #### 3.1 Software Requirements Specification (SRS) Results
 
-Based on your quantified system performance, comment on how you achieved or fell short of your expected software requirements. You should be quantifying this, using measurement tools to collect data.
+We sucessfully met all of our SRS. First, we programmed our ATMEGA to poll the moisture sensor every 200ms, and update the OLED per reading. Moreover, our water pump stops when ADC is between 530-570. This is done by watering drop by drop so that the ADC values have time to update. By changing the directions of each motor through H-bridge manipulation, we were also able to get the cart to move in all 6 of the specified directions, automatically and manually through Blynk. Our ATEMGA also can detect and not move when the cart is in uniform lighting (ADC values are within 120 of each other), and can track the direction of the brightest light direction. It can follow a flashlight pointed at one corner. Lastly, the bump sensor is set up such that when it is initially pressed down, an edge capture on Timer 4 activates, which then activates timer 3. When timer 3 overflows (in approximately 0.47s due to 256 prescalar), the status of the button is checked again to make sure it is actually pressed. Then, the platform stops. Thus, this e-stop occurs less than half a second, as specified.
 
 #### 3.2 Hardware Requirements Specification (HRS) Results
 
-Based on your quantified system performance, comment on how you achieved or fell short of your expected hardware requirements. You should be quantifying this, using measurement tools to collect data.
+
 
 ### 4. Conclusion
 
