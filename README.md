@@ -100,7 +100,11 @@ If you’ve never made a Github pages website before, you can follow this webpag
 
 ### 2. Images
 
-[Insert final project images here]
+![alt text](IMG_0222.JPG)
+![alt text](IMG_0223.JPG)
+![alt text](IMG_0224.JPG)
+![alt text](IMG_0225.JPG)
+![alt text](IMG_0226.JPG)
 
 ### 3. Results
 
