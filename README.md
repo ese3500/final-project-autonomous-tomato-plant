@@ -29,6 +29,7 @@ By the end of this project, we want to have all of our features listed above to 
 * ADC for moisture shall update every 200ms.
 * ATMEGA shall control water pump such that it maintains ADC values between 530-570
 * ATMEGA shall be able control the cart in all 6 directions (forward, reverse, left, right, strafe left, strafe right)
+* ATMEGA shall control the motor such that it spins in place while not moving
 * When bump sensor is pressed, platform shall stop in 0.5s
 * ATMEGA shall correctly identify the brightest light direction, and control the motors to follow it using a combination of directional moves
 * ATMEGA shall determine if the platform is in uniform lighting and not move
@@ -124,7 +125,7 @@ The final solution was a platform for the plant to be put onto. This platform ha
 
 We sucessfully met most of our SRS. First, we programmed our ATMEGA to poll the moisture sensor every 200ms, and update the OLED per reading. Moreover, our water pump stops when ADC is between 530-570. This is done by watering drop by drop so that the ADC values have time to update. By changing the directions of each motor through H-bridge manipulation, we were also able to get the cart to move in all 6 of the specified directions, automatically and manually through Blynk. Our ATEMGA also can detect and not move when the cart is in uniform lighting (ADC values are within 120 of each other), and can track the direction of the brightest light direction. It can follow a flashlight pointed at one corner. Lastly, the bump sensor is set up such that when it is initially pressed down, an edge capture on Timer 4 activates, which then activates timer 3. When timer 3 overflows (in approximately 0.47s due to 256 prescalar), the status of the button is checked again to make sure it is actually pressed. Then, the platform stops. Thus, this e-stop occurs less than half a second, as specified.
 
-However due to time constraints, we decided that we could not finish software route-planning using data from ultrasonic sensors. Also, given that the processor needs to control motor movement, it is extremely difficult to fit in another computationally-complex and real-time monitoring task without a multicore MCU. Thus, we weren't able to meet our stretch goal of route planning, but we were able to detect crashes and stop the cart. 
+However due to time constraints, we decided that we could not finish software route-planning using data from ultrasonic sensors. Also, given that the processor needs to control motor movement, it is extremely difficult to fit in another computationally-complex and real-time monitoring task without a multicore MCU. Thus, we weren't able to meet our stretch goal of route planning, but we were able to detect crashes and stop the cart. Moreover, we also realized that making the platform constantly spin is too draining on the battery and also blocks other functions as the ATMEGA is single core. Thus, we decided not to implement this function.
 
 #### 3.2 Hardware Requirements Specification (HRS) Results
 
