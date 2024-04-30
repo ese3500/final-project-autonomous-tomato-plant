@@ -100,8 +100,7 @@ Add your slides to the Final Project Proposal slide deck in the Google Drive.
 
 ## Final Project Report
 
-Don't forget to make the GitHub pages public website!
-If you’ve never made a Github pages website before, you can follow this webpage (though, substitute your final project repository for the Github username one in the quickstart guide):  <https://docs.github.com/en/pages/quickstart>
+https://jiaxiaogabrielzhangee.github.io/AutoPlant.github.io/
 
 ### 1. Video
 
