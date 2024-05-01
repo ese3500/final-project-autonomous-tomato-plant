@@ -109,7 +109,7 @@ Link to the final project demo video: https://youtu.be/UKksILaxGA8
 
 ### 2. Images
 
-![alt text](IMG_0222.JPG)
+![alt text]("Final Project Images/IMG_0222.JPG")
 ![alt text](IMG_0223.JPG)
 ![alt text](IMG_0224.JPG)
 ![alt text](IMG_0225.JPG)
